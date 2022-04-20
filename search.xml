@@ -4,6 +4,107 @@
   
     
     <entry>
+      <title>数据增强</title>
+      <link href="/2022/04/20/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/"/>
+      <url>/2022/04/20/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/</url>
+      
+        <content type="html"><![CDATA[<h1>数据增强</h1><p>我们都知道，神经网络能够拟合任意的非线性函数，但是这都有一个前提，就是我们的Train数据集足够的大，能够让模型学习到足够多的信息，但实际情况下，很多时候我们并没有如此大的数据集。那怎么办呢？我们可以通过对原图像做一些变换生成新的图像，从而扩大数据集。</p><center><mark>以下api都来自于torchvision.nn.transforms</mark></center><h2 id="Resize">Resize</h2><p>改变图片大小：</p><p>使用示例：<code>transforms.Resize([32,32])</code></p><h2 id="Flip">Flip</h2><p>翻转操作</p><p><code>transforms.RandomHorizontalFlip()</code>:随机决定是否左右翻转</p><p><code>transforms.RandomVerticalFlip()</code>:随机决定是否上下翻转</p><h2 id="Rotate">Rotate</h2><p>旋转操作</p><p><code>transforms.RandomRotation(15)</code>:随机在-15~15度之间进行旋转.</p><p><code>transforms.RandomRotation([90,180,270])</code>:随机旋转90,180,270度</p><h2 id="Crop-part">Crop part</h2><p>随机裁剪部分：</p><p><code>transforms.RandomCrop([28,28])</code>:随机裁剪为28*28</p><h2 id="Noise">Noise</h2><p>使用numpy随机添加噪声</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 剑谱 </category>
+          
+          <category> 天下第一剑:机器学习 </category>
+          
+          <category> Pytorch </category>
+          
+          <category> 卷积神经网络 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Pytorch </tag>
+            
+            <tag> CNN </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CNN实现MNIST数字分类</title>
+      <link href="/2022/04/20/CNN%E5%AE%9E%E7%8E%B0MNIST%E6%95%B0%E5%AD%97%E5%88%86%E7%B1%BB/"/>
+      <url>/2022/04/20/CNN%E5%AE%9E%E7%8E%B0MNIST%E6%95%B0%E5%AD%97%E5%88%86%E7%B1%BB/</url>
+      
+        <content type="html"><![CDATA[<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn,optim</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> datasets,transforms</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="comment">#参数定义</span></span><br><span class="line">parser=argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">&#x27;--batch_size&#x27;</span>,default=<span class="number">64</span>)</span><br><span class="line">parser.add_argument(<span class="string">&#x27;--learning_rate&#x27;</span>,<span class="built_in">type</span>=<span class="built_in">float</span>,default=<span class="number">1e-2</span>)</span><br><span class="line">parser.add_argument(<span class="string">&#x27;--num_epochs&#x27;</span>,<span class="built_in">type</span>=<span class="built_in">int</span>,default=<span class="number">20</span>)</span><br><span class="line">args=parser.parse_args()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#模型结构与激活函数</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">simpleCNN</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">super</span>(simpleCNN,self).__init__()</span><br><span class="line">        <span class="comment">#[b,1,28,28]</span></span><br><span class="line">        self.layer1=nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">1</span>,<span class="number">16</span>,kernel_size=<span class="number">3</span>),nn.BatchNorm2d(<span class="number">16</span>),nn.ReLU(<span class="literal">True</span>))</span><br><span class="line">        <span class="comment">#[b,16,26,26]</span></span><br><span class="line">        self.layer2=nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">16</span>,<span class="number">32</span>,kernel_size=<span class="number">3</span>),nn.BatchNorm2d(<span class="number">32</span>),nn.ReLU(<span class="literal">True</span>),nn.MaxPool2d(kernel_size=<span class="number">2</span>,stride=<span class="number">2</span>))</span><br><span class="line">        <span class="comment">#[b,32,24,24]-&gt;[b,32,12,12]</span></span><br><span class="line">        self.layer3=nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>,<span class="number">64</span>,kernel_size=<span class="number">3</span>),nn.BatchNorm2d(<span class="number">64</span>),nn.ReLU(<span class="literal">True</span>))</span><br><span class="line">        <span class="comment">#[b,64,10,10]</span></span><br><span class="line">        self.layer4=nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">64</span>,<span class="number">128</span>,kernel_size=<span class="number">3</span>),nn.BatchNorm2d(<span class="number">128</span>),nn.ReLU(<span class="literal">True</span>),nn.MaxPool2d(kernel_size=<span class="number">2</span>,stride=<span class="number">2</span>))</span><br><span class="line">        <span class="comment">#[b,128,8,8]-&gt;#[b,128,4,4]</span></span><br><span class="line">        self.fc=nn.Sequential(</span><br><span class="line">            nn.Linear(<span class="number">128</span>*<span class="number">4</span>*<span class="number">4</span>,<span class="number">1024</span>)</span><br><span class="line">            ,nn.ReLU(<span class="literal">True</span>)</span><br><span class="line">            ,nn.Linear(<span class="number">1024</span>,<span class="number">128</span>)</span><br><span class="line">            ,nn.ReLU(<span class="literal">True</span>)</span><br><span class="line">            ,nn.Linear(<span class="number">128</span>,<span class="number">10</span>)</span><br><span class="line">        )</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,x</span>):</span><br><span class="line">        self.x1=self.layer1(x)</span><br><span class="line">        self.x2=self.layer2(self.x1)</span><br><span class="line">        self.x3=self.layer3(self.x2)</span><br><span class="line">        self.x4=self.layer4(self.x3)</span><br><span class="line">        self.x4=self.x4.reshape(self.x4.size(<span class="number">0</span>),-<span class="number">1</span>)</span><br><span class="line">        self.out=self.fc(self.x4)</span><br><span class="line">        <span class="keyword">return</span> self.out</span><br><span class="line"></span><br><span class="line"><span class="comment">#数据预处理</span></span><br><span class="line">data_tf=transforms.Compose(</span><br><span class="line">    [transforms.ToTensor(),</span><br><span class="line">    transforms.Normalize([<span class="number">0.5</span>],[<span class="number">0.5</span>])]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#读取数据集</span></span><br><span class="line">train_data=datasets.MNIST(</span><br><span class="line">    root=<span class="string">&#x27;./data&#x27;</span>,train=<span class="literal">True</span>,transform=data_tf,download=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line">test_data=datasets.MNIST(</span><br><span class="line">    root=<span class="string">&#x27;./data&#x27;</span>,train=<span class="literal">False</span>,transform=data_tf)</span><br><span class="line">train_loader=DataLoader(train_data,batch_size=args.batch_size,shuffle=<span class="literal">True</span>)</span><br><span class="line">test_loader=DataLoader(test_data,batch_size=<span class="number">10000</span>,shuffle=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">    model=simpleCNN().cuda()</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    model=simpleCNN()</span><br><span class="line"></span><br><span class="line">criterion=nn.CrossEntropyLoss()</span><br><span class="line">optimizer=optim.SGD(model.parameters(),lr=args.learning_rate,momentum=<span class="number">0.78</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#训练模型</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(args.num_epochs):</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> train_loader:</span><br><span class="line">        img,label=batch</span><br><span class="line">        <span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">            img=img.cuda()</span><br><span class="line">            label=label.cuda()</span><br><span class="line">        out=model(img)</span><br><span class="line">      </span><br><span class="line">        loss=criterion(out,label)</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;epochs:&#123;&#125;,loss:&#123;:.6f&#125;&quot;</span>.<span class="built_in">format</span>(epoch,loss))</span><br><span class="line"></span><br><span class="line"><span class="comment">#测试模型</span></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line">eval_loss=<span class="number">0</span></span><br><span class="line">eval_acc=<span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> batch <span class="keyword">in</span> test_loader:</span><br><span class="line">    img,label=batch</span><br><span class="line">    <span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">        img=img.cuda()</span><br><span class="line">        label=label.cuda()</span><br><span class="line">    out=model(img)</span><br><span class="line">    loss=criterion(out,label)</span><br><span class="line"> </span><br><span class="line">    eval_loss+=loss.detach()*label.size(<span class="number">0</span>)</span><br><span class="line">    pred=torch.<span class="built_in">max</span>(out,dim=<span class="number">1</span>)[<span class="number">1</span>]</span><br><span class="line">    num_correct=(pred==label).<span class="built_in">sum</span>()</span><br><span class="line">    eval_acc+=num_correct.detach()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Test loss:&#123;&#125;,ACC:&#123;:.6f&#125;&#x27;</span>.<span class="built_in">format</span>(eval_loss/<span class="built_in">len</span>(test_data),eval_acc/<span class="built_in">len</span>(test_data)))</span><br></pre></td></tr></table></figure><p><img src="https://s1.328888.xyz/2022/04/20/raHty.png" alt="raHty.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 剑谱 </category>
+          
+          <category> 天下第一剑:机器学习 </category>
+          
+          <category> Pytorch </category>
+          
+          <category> 卷积神经网络 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Pytorch </tag>
+            
+            <tag> CNN </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>经典CNN</title>
+      <link href="/2022/04/20/%E7%BB%8F%E5%85%B8CNN/"/>
+      <url>/2022/04/20/%E7%BB%8F%E5%85%B8CNN/</url>
+      
+        <content type="html"><![CDATA[<h1>经典CNN</h1><h2 id="LENET-5">LENET-5</h2><p><img src="https://s1.328888.xyz/2022/04/20/rOADZ.png" alt="rOADZ.png"></p><h2 id="AlexNet">AlexNet</h2><p><img src="https://s1.328888.xyz/2022/04/20/rODRt.png" alt="rODRt.png"></p><h2 id="VGGNet">VGGNet</h2><p>计算量非常大</p><h2 id="GoogleNet">GoogleNet</h2><p>同一层用不同尺寸的卷积核：Inception</p><p><img src="https://s1.328888.xyz/2022/04/20/rOW1P.png" alt="rOW1P.png"></p><h2 id="ResNet-深度残差网络">ResNet(深度残差网络)</h2><p>当深度到达22层以后，再堆叠更多的层数，模型性能反而会下降，因为太多层的堆叠经常会使得误差积累导致梯度离散。</p><p>ResNet：卷积层之间加一个shortcut</p><p><img src="https://s1.328888.xyz/2022/04/20/rOpdA.png" alt="rOpdA.png"></p><p>假设传统神经网络输入为x，输出为F(X),则需要学习的就是F(X)这个函数映射。</p><p>而对于ResNet，输入为x，输出为H(X)=F(X)+X，我们需要学习的是F(X=)H(X)-X这样输入与输出差别，即残差。</p><p>常用的ResNet unit：</p><p><img src="https://s1.328888.xyz/2022/04/20/rOwbW.png" alt="rOwbW.png"></p><p>第一层和第三层使用1x1的卷积核能极大的减少参数量。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 剑谱 </category>
+          
+          <category> 天下第一剑:机器学习 </category>
+          
+          <category> Pytorch </category>
+          
+          <category> 卷积神经网络 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Pytorch </tag>
+            
+            <tag> CNN </tag>
+            
+            <tag> ResNet </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CNN原理</title>
       <link href="/2022/04/19/CNN%E5%8E%9F%E7%90%86/"/>
       <url>/2022/04/19/CNN%E5%8E%9F%E7%90%86/</url>
@@ -106,6 +207,8 @@
         <tags>
             
             <tag> 预处理 </tag>
+            
+            <tag> PCA </tag>
             
         </tags>
       
@@ -213,6 +316,8 @@
             
             <tag> pytorch </tag>
             
+            <tag> visdom </tag>
+            
         </tags>
       
     </entry>
@@ -311,6 +416,8 @@
             <tag> Pytorch </tag>
             
             <tag> 深度学习 </tag>
+            
+            <tag> SGD </tag>
             
         </tags>
       
