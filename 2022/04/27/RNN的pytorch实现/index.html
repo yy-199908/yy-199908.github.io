@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>RNN的pytorch实现 | YY's Blog</title><meta name="keywords" content="Pytorch,RNN,LSTM"><meta name="author" content="默默垂断续流"><meta name="copyright" content="默默垂断续流"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="标准RNN 可直接调用torch.nn.RNN() $$ h_t&#x3D;tanh(w_{ih}*x_t+b_{ih}+w_{hh}*h_{h-1}+b_{hh}) $$ 参数： input_size：输入$x_t$的特征维度。 hidden_size：输出$h_t$的特征维度 layers：网络层数 nonlinearity：非线性激活函数，默认为tanh bias：是否使用偏执，默认为True bat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RNN的pytorch实现">
+<meta property="og:url" content="http://example.com/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="YY&#39;s Blog">
+<meta property="og:description" content="标准RNN 可直接调用torch.nn.RNN() $$ h_t&#x3D;tanh(w_{ih}*x_t+b_{ih}+w_{hh}*h_{h-1}+b_{hh}) $$ 参数： input_size：输入$x_t$的特征维度。 hidden_size：输出$h_t$的特征维度 layers：网络层数 nonlinearity：非线性激活函数，默认为tanh bias：是否使用偏执，默认为True bat">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.328888.xyz/2022/04/27/8Zyjd.png">
+<meta property="article:published_time" content="2022-04-27T11:31:53.000Z">
+<meta property="article:modified_time" content="2022-04-27T11:35:03.539Z">
+<meta property="article:author" content="默默垂断续流">
+<meta property="article:tag" content="Pytorch">
+<meta property="article:tag" content="RNN">
+<meta property="article:tag" content="LSTM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.328888.xyz/2022/04/27/8Zyjd.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'RNN的pytorch实现',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-04-27 19:35:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">23</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s1.328888.xyz/2022/04/27/8Zyjd.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YY's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">RNN的pytorch实现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-27T11:31:53.000Z" title="发表于 2022-04-27 19:31:53">2022-04-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-04-27T11:35:03.539Z" title="更新于 2022-04-27 19:35:03">2022-04-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/">剑谱</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">天下第一剑:机器学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/">Pytorch</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">循环神经网络</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="RNN的pytorch实现"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="标准RNN">标准RNN</h2>
+<p>可直接调用<code>torch.nn.RNN()</code><br>
+$$<br>
+h_t=tanh(w_{ih}*x_t+b_{ih}+w_{hh}*h_{h-1}+b_{hh})<br>
+$$</p>
+<p>参数：</p>
+<p><code>input_size</code>：输入$x_t$的特征维度。</p>
+<p><code>hidden_size</code>：输出$h_t$的特征维度</p>
+<p><code>layers</code>：网络层数</p>
+<p><code>nonlinearity</code>：非线性激活函数，默认为tanh</p>
+<p><code>bias</code>：是否使用偏执，默认为True</p>
+<p><code>batch_first</code>：是否将输入$x_t(batch,seq,feature)$,默认为False，batch是第二维度</p>
+<p><code>dropout</code>：接受0~1之间的值，会在网络中除了最后一层之外的输出层加上dropout</p>
+<p><code>bidirectional</code>：是否双向，默认为False，如果设置为True，则为双向循环神经网络</p>
+<p>网络的输入：</p>
+<p>网络的输入为一个序列$x_t$和记忆输入$h_0$</p>
+<p>$x_t(seq,batch,feature)$</p>
+<p>$h_0(layers*direction,batch,hidden)$</p>
+<p>direction 表示方向，如果双向RNN则<code>direction=2</code></p>
+<p>hidden 表示输出的特征维度</p>
+<p>网络的输出：</p>
+<p>网络输出$output$和$h_n$:</p>
+<p>$output(seq,batch,hidden*direction)$</p>
+<p>$h_n(layers*direction,batch,hidden)$</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line">basic_rnn=nn.RNN(input_size=<span class="number">20</span>,hidden_size=<span class="number">50</span>,num_layers=<span class="number">2</span>)</span><br><span class="line"><span class="built_in">print</span>(basic_rnn.weight_ih_l0.shape)<span class="comment">#查看参数weight_ih_l0\weight_hh_l1\bias_ih_l0</span></span><br><span class="line">input_test=torch.randn(<span class="number">100</span>,<span class="number">32</span>,<span class="number">20</span>)</span><br><span class="line">h_0=torch.randn(<span class="number">2</span>,<span class="number">32</span>,<span class="number">50</span>)</span><br><span class="line">output_test,h_n=basic_rnn(input_test,h_0)</span><br><span class="line"><span class="built_in">print</span>(output_test.shape)</span><br><span class="line"><span class="built_in">print</span>(h_n.shape)</span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.328888.xyz/2022/04/24/8LBIX.png" alt="8LBIX.png"></p>
+<h2 id="LSTM">LSTM</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">lstm=nn.LSTM(input_size=<span class="number">20</span>,hidden_size=<span class="number">50</span>,num_layers=<span class="number">2</span>)</span><br><span class="line">input_test=torch.randn(<span class="number">100</span>,<span class="number">32</span>,<span class="number">20</span>)</span><br><span class="line">lstm_out,(h_n,c_n)=lstm(input_test)</span><br><span class="line"><span class="built_in">print</span>(lstm.weight_ih_l0.shape)</span><br><span class="line"><span class="built_in">print</span>(lstm_out.shape)</span><br><span class="line"><span class="built_in">print</span>(h_n.shape)</span><br><span class="line"><span class="built_in">print</span>(c_n.shape)</span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.328888.xyz/2022/04/24/8XUn1.png" alt="8XUn1.png"></p>
+<p>lstm参数是标准RNN的4倍</p>
+<h2 id="GRU">GRU</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">gru=nn.GRU(input_size=<span class="number">20</span>,hidden_size=<span class="number">50</span>,num_layers=<span class="number">2</span>)</span><br><span class="line">input_test=torch.randn(<span class="number">100</span>,<span class="number">32</span>,<span class="number">20</span>)</span><br><span class="line">gru_out,(h_n,c_n)=gru(input_test)</span><br><span class="line"><span class="built_in">print</span>(gru.weight_ih_l0.shape)</span><br><span class="line"><span class="built_in">print</span>(gru_out.shape)</span><br><span class="line"><span class="built_in">print</span>(h_n.shape)</span><br><span class="line"><span class="built_in">print</span>(c_n.shape)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.328888.xyz/2022/04/24/8Xuet.png" alt="8Xuet.png"></p>
+<h2 id="LSTM实现MNIST图片识别">LSTM实现MNIST图片识别</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pickletools <span class="keyword">import</span> optimize</span><br><span class="line"><span class="keyword">from</span> turtle <span class="keyword">import</span> forward</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> datasets,transforms</span><br><span class="line"><span class="keyword">import</span> os,sys</span><br><span class="line"><span class="keyword">from</span> visdom <span class="keyword">import</span> Visdom</span><br><span class="line">viz=Visdom()</span><br><span class="line">viz.line([<span class="number">0.</span>],[<span class="number">0.</span>],win=<span class="string">&#x27;train_loss&#x27;</span>,opts=<span class="built_in">dict</span>(title=<span class="string">&#x27;train loss&#x27;</span>))<span class="comment">#创建一条直线（y,x,ID,opt:属性配置）</span></span><br><span class="line">os.chdir(sys.path[<span class="number">0</span>])</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyRnn</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,in_dim,hidden_dim,n_layer,n_class</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">super</span>(MyRnn,self).__init__()</span><br><span class="line">        self.n_layer=n_layer</span><br><span class="line">        self.hidden_dim=hidden_dim</span><br><span class="line">        self.lstm=nn.LSTM(in_dim,hidden_dim,n_layer,batch_first=<span class="literal">True</span>)</span><br><span class="line">        self.classifer=nn.Linear(hidden_dim,n_class)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,x</span>):</span><br><span class="line">        out,(h_n,c_0)=self.lstm(x)</span><br><span class="line">        out=out[:,-<span class="number">1</span>,:]</span><br><span class="line">        out=self.classifer(out)</span><br><span class="line">        <span class="keyword">return</span>  out</span><br><span class="line"><span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">    model=MyRnn(<span class="number">784</span>,<span class="number">50</span>,<span class="number">2</span>,<span class="number">10</span>).cuda()</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    model=MyRnn(<span class="number">784</span>,<span class="number">50</span>,<span class="number">2</span>,<span class="number">10</span>)</span><br><span class="line">criter=nn.CrossEntropyLoss()</span><br><span class="line">optimizer=torch.optim.SGD(model.parameters(),lr=<span class="number">1e-2</span>)</span><br><span class="line">epochs=<span class="number">30</span></span><br><span class="line"></span><br><span class="line">data_tf=transforms.Compose(</span><br><span class="line">    [transforms.ToTensor(),</span><br><span class="line">    transforms.Normalize([<span class="number">0.5</span>],[<span class="number">0.5</span>])]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">#读取数据集</span></span><br><span class="line">train_data=datasets.MNIST(</span><br><span class="line">    root=<span class="string">&#x27;./data&#x27;</span>,train=<span class="literal">True</span>,transform=data_tf,download=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line">test_data=train_data=datasets.MNIST(</span><br><span class="line">    root=<span class="string">&#x27;./data&#x27;</span>,train=<span class="literal">False</span>,transform=data_tf)</span><br><span class="line">train_loader=DataLoader(train_data,batch_size=<span class="number">32</span>,shuffle=<span class="literal">True</span>)</span><br><span class="line">test_loader=DataLoader(test_data,batch_size=<span class="number">32</span>,shuffle=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">global_step=<span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(epochs):</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> train_loader:</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        img,label=batch</span><br><span class="line">        <span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">            img=img.cuda()</span><br><span class="line">            label=label.cuda()</span><br><span class="line"></span><br><span class="line">        img=img.reshape(img.size(<span class="number">0</span>),img.size(<span class="number">1</span>),<span class="number">784</span>)  </span><br><span class="line">        global_step+=<span class="number">1</span>  </span><br><span class="line">        output=model(img)</span><br><span class="line">        loss=criter(output,label)</span><br><span class="line">        viz.line([loss.item()],[global_step],win=<span class="string">&#x27;train_loss&#x27;</span>,update=<span class="string">&#x27;append&#x27;</span>)<span class="comment">#将数据添加到直线中（update操作）</span></span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;epochs:&#123;&#125;,loss:&#123;:.6f&#125;&quot;</span>.<span class="built_in">format</span>(epoch,loss))</span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line">eval_loss=<span class="number">0</span></span><br><span class="line">eval_acc=<span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> batch <span class="keyword">in</span> test_loader:</span><br><span class="line">    img,label=batch</span><br><span class="line">    <span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">        img=img.cuda()</span><br><span class="line">        label=label.cuda()</span><br><span class="line">    img=img.reshape(img.size(<span class="number">0</span>),img.size(<span class="number">1</span>),<span class="number">784</span>)  </span><br><span class="line">    out=model(img)</span><br><span class="line">    loss=criter(out,label)</span><br><span class="line"> </span><br><span class="line">    eval_loss+=loss.detach()*label.size(<span class="number">0</span>)</span><br><span class="line">    pred=torch.<span class="built_in">max</span>(out,dim=<span class="number">1</span>)[<span class="number">1</span>]</span><br><span class="line">    num_correct=(pred==label).<span class="built_in">sum</span>()</span><br><span class="line">    eval_acc+=num_correct.detach()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Test loss:&#123;&#125;,ACC:&#123;:.6f&#125;&#x27;</span>.<span class="built_in">format</span>(eval_loss/<span class="built_in">len</span>(test_data),eval_acc/<span class="built_in">len</span>(test_data)))</span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.328888.xyz/2022/04/25/8Hwp2.png" alt="8Hwp2.png"></p>
+<p><img src="https://s1.328888.xyz/2022/04/25/8HOy7.png" alt="8HOy7.png"></p>
+<p>RNN是不舍和处理图片数据的，其一是图片中的信息没有很强的序列关系，其二是RNN必须前面一个数据计算结束才能进行后面一个的数据计算，这对于大图片来说无疑是很慢的。</p>
+<h2 id="RNN适用场景-序列预测">RNN适用场景-序列预测</h2>
+<p>​	通过<code>s(k-3),s(k-2),s(k-1),s(k)</code>预测<code>s(k+1)</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pickletools <span class="keyword">import</span> optimize</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn,optim</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> os,sys</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyRnn</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,in_dim,hidden_dim,n_layer,n_class</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">super</span>(MyRnn,self).__init__()</span><br><span class="line">        self.n_layer=n_layer</span><br><span class="line">        self.hidden_dim=hidden_dim</span><br><span class="line">        self.lstm=nn.LSTM(in_dim,hidden_dim,n_layer)</span><br><span class="line">        self.classifer=nn.Linear(hidden_dim,n_class)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,x</span>):</span><br><span class="line">        out,(h_n,c_0)=self.lstm(x)</span><br><span class="line">        <span class="comment"># out=out.reshape(out.size(0)*out.size(1),-1)</span></span><br><span class="line">        out=self.classifer(out)</span><br><span class="line">        <span class="keyword">return</span>  out</span><br><span class="line">os.chdir(sys.path[<span class="number">0</span>])</span><br><span class="line">data=pd.read_csv(<span class="string">&#x27;author\code-of-learn-deep-learning-with-pytorch\chapter5_RNN\\time-series\\data.csv&#x27;</span>,usecols=[<span class="number">1</span>])</span><br><span class="line">data1=data.dropna()</span><br><span class="line">data=np.array(data1.iloc[:,<span class="number">0</span>])</span><br><span class="line">data.astype(<span class="string">&#x27;float32&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#归一化为0~1</span></span><br><span class="line">max_data=<span class="built_in">max</span>(data)</span><br><span class="line">min_data=<span class="built_in">min</span>(data)</span><br><span class="line">data=data/(max_data-min_data)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#用前4年预测第五年</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_dataset</span>(<span class="params">dataset, look_back=<span class="number">2</span></span>):</span><br><span class="line">    dataX, dataY = [], []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(dataset) - look_back):</span><br><span class="line">        a = dataset[i:(i + look_back)]</span><br><span class="line">        dataX.append(a)</span><br><span class="line">        dataY.append(dataset[i + look_back])</span><br><span class="line">    <span class="keyword">return</span> np.array(dataX), np.array(dataY)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">dataX,dataY=create_dataset(data,look_back=<span class="number">4</span>)</span><br><span class="line">len_train=<span class="built_in">int</span>(<span class="built_in">len</span>(data)*<span class="number">0.7</span>)</span><br><span class="line">train_data=dataX[:len_train]</span><br><span class="line">train_label=dataY[:len_train]</span><br><span class="line">test_data=dataX[len_train:]</span><br><span class="line">test_label=dataY[len_train:]</span><br><span class="line"></span><br><span class="line">dataX=dataX.reshape(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">4</span>)</span><br><span class="line">train_data=train_data.reshape(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">4</span>)</span><br><span class="line">train_label=train_label.reshape(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">test_data=test_data.reshape(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">4</span>)</span><br><span class="line">dataX=torch.from_numpy(dataX).<span class="built_in">float</span>().cuda()</span><br><span class="line">train_data=torch.from_numpy(train_data).<span class="built_in">float</span>().cuda()</span><br><span class="line">train_label=torch.from_numpy(train_label).<span class="built_in">float</span>().cuda()</span><br><span class="line">test_data=torch.from_numpy(test_data).<span class="built_in">float</span>().cuda()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">    model=MyRnn(<span class="number">4</span>,<span class="number">50</span>,<span class="number">2</span>,<span class="number">1</span>).cuda()</span><br><span class="line">cri=nn.MSELoss()</span><br><span class="line">optimizer=optim.Adam(model.parameters(),lr=<span class="number">1e-3</span>)</span><br><span class="line">epochs=<span class="number">30</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>):</span><br><span class="line">    optimizer.zero_grad()</span><br><span class="line">    output=model(train_data)  </span><br><span class="line">    loss=cri(output,train_label)</span><br><span class="line">    loss.backward()</span><br><span class="line">    optimizer.step()</span><br><span class="line">    <span class="keyword">if</span> epoch%<span class="number">100</span>==<span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;epoch:&#123;&#125;,loss:&#123;:.6f&#125;&#x27;</span>.<span class="built_in">format</span>(epoch,loss)) </span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line">pred=model(dataX)</span><br><span class="line">pred=pred.reshape(-<span class="number">1</span>).cpu().detach().numpy()*(max_data-min_data)</span><br><span class="line"><span class="built_in">print</span>(pred)</span><br><span class="line">plt.plot(pred, <span class="string">&#x27;r&#x27;</span>, label=<span class="string">&#x27;prediction&#x27;</span>)</span><br><span class="line">plt.plot(data1, <span class="string">&#x27;b&#x27;</span>, label=<span class="string">&#x27;real&#x27;</span>)</span><br><span class="line">plt.legend(loc=<span class="string">&#x27;best&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.328888.xyz/2022/04/25/8D2qA.png" alt="8D2qA.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">默默垂断续流</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/">http://example.com/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YY's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Pytorch/">Pytorch</a><a class="post-meta__tags" href="/tags/RNN/">RNN</a><a class="post-meta__tags" href="/tags/LSTM/">LSTM</a></div><div class="post_share"><div class="social-share" data-image="https://s1.328888.xyz/2022/04/27/8Zyjd.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/04/27/RNN%E7%9A%84%E6%9B%B4%E5%A4%9A%E5%BA%94%E7%94%A8/"><img class="next-cover" src="https://s1.328888.xyz/2022/04/27/8ZgJQ.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">RNN的更多应用</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/04/27/RNN%E7%9A%84%E6%9B%B4%E5%A4%9A%E5%BA%94%E7%94%A8/" title="RNN的更多应用"><img class="cover" src="https://s1.328888.xyz/2022/04/27/8ZgJQ.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-04-27</div><div class="title">RNN的更多应用</div></div></a></div><div><a href="/2022/04/27/nlp/" title="nlp"><img class="cover" src="https://s1.328888.xyz/2022/04/27/8ZhjZ.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-04-27</div><div class="title">nlp</div></div></a></div><div><a href="/2022/04/27/RNN/" title="RNN"><img class="cover" src="https://s1.328888.xyz/2022/04/27/8ZHJC.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-04-27</div><div class="title">RNN</div></div></a></div><div><a href="/2022/04/20/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/" title="数据增强"><img class="cover" src="https://s1.328888.xyz/2022/04/20/rZzwW.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-04-20</div><div class="title">数据增强</div></div></a></div><div><a href="/2022/04/20/CNN%E5%AE%9E%E7%8E%B0MNIST%E6%95%B0%E5%AD%97%E5%88%86%E7%B1%BB/" title="CNN实现MNIST数字分类"><img class="cover" src="https://s1.328888.xyz/2022/04/20/rZln0.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-04-20</div><div class="title">CNN实现MNIST数字分类</div></div></a></div><div><a href="/2022/04/20/%E7%BB%8F%E5%85%B8CNN/" title="经典CNN"><img class="cover" src="https://s1.328888.xyz/2022/04/20/rZRJ3.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-04-20</div><div class="title">经典CNN</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81NjAzNS8zMjQ5OA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">默默垂断续流</div><div class="author-info__description">记录有意义的一切</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">23</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/yy-199908"><i class="fab fa-github"></i><span>github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/yy-199908" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1102525983@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="tencent://AddContact/?fromId=50&amp;fromSubId=1&amp;subcmd=all&amp;uin=1102525983" target="_blank" title="qq"><i class="fa-brands fa-qq"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86RNN"><span class="toc-number">1.</span> <span class="toc-text">标准RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSTM"><span class="toc-number">2.</span> <span class="toc-text">LSTM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GRU"><span class="toc-number">3.</span> <span class="toc-text">GRU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSTM%E5%AE%9E%E7%8E%B0MNIST%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB"><span class="toc-number">4.</span> <span class="toc-text">LSTM实现MNIST图片识别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RNN%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-%E5%BA%8F%E5%88%97%E9%A2%84%E6%B5%8B"><span class="toc-number">5.</span> <span class="toc-text">RNN适用场景-序列预测</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/" title="RNN的pytorch实现"><img src="https://s1.328888.xyz/2022/04/27/8Zyjd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RNN的pytorch实现"/></a><div class="content"><a class="title" href="/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/" title="RNN的pytorch实现">RNN的pytorch实现</a><time datetime="2022-04-27T11:31:53.000Z" title="发表于 2022-04-27 19:31:53">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/RNN%E7%9A%84%E6%9B%B4%E5%A4%9A%E5%BA%94%E7%94%A8/" title="RNN的更多应用"><img src="https://s1.328888.xyz/2022/04/27/8ZgJQ.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RNN的更多应用"/></a><div class="content"><a class="title" href="/2022/04/27/RNN%E7%9A%84%E6%9B%B4%E5%A4%9A%E5%BA%94%E7%94%A8/" title="RNN的更多应用">RNN的更多应用</a><time datetime="2022-04-27T11:31:39.000Z" title="发表于 2022-04-27 19:31:39">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/nlp/" title="nlp"><img src="https://s1.328888.xyz/2022/04/27/8ZhjZ.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="nlp"/></a><div class="content"><a class="title" href="/2022/04/27/nlp/" title="nlp">nlp</a><time datetime="2022-04-27T11:31:26.000Z" title="发表于 2022-04-27 19:31:26">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/RNN/" title="RNN"><img src="https://s1.328888.xyz/2022/04/27/8ZHJC.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RNN"/></a><div class="content"><a class="title" href="/2022/04/27/RNN/" title="RNN">RNN</a><time datetime="2022-04-27T11:31:14.000Z" title="发表于 2022-04-27 19:31:14">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/20/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/" title="数据增强"><img src="https://s1.328888.xyz/2022/04/20/rZzwW.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据增强"/></a><div class="content"><a class="title" href="/2022/04/20/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/" title="数据增强">数据增强</a><time datetime="2022-04-20T14:46:45.000Z" title="发表于 2022-04-20 22:46:45">2022-04-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s1.328888.xyz/2022/04/27/8Zyjd.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By 默默垂断续流</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadLivere () {
+  if (typeof LivereTower === 'object') {
+    window.LivereTower.init()
+  }
+  else {
+    (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  }
+}
+
+if ('Livere' === 'Livere' || !false) {
+  if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+  else loadLivere()
+}
+else {
+  function loadOtherComment () {
+    loadLivere()
+  }
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                console.log('已挂载electric_clock')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"superSample":2,"width":250,"height":500,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":false,"scale":0.5},"react":{"opacityDefault":0.7,"opacityOnHover":0.2},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
