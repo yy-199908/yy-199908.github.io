@@ -1,0 +1,451 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>强化学习 | YY's Blog</title><meta name="keywords" content="强化学习"><meta name="author" content="默默垂断续流"><meta name="copyright" content="默默垂断续流"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="强化学习 参考教材  强化学习导论 — 强化学习导论  (qiwihui.com) 深度强化学习（全）_哔哩哔哩_bilibili 世界冠军带你从零实践强化学习_哔哩哔哩_bilibili  何为强化学习？其核心思想就是让智能体agent再环境environment中学习，根据环境的状态state，执行动作action，并根据环境的反馈reward(奖励)来指导更好的动作。其reward是延迟的，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习">
+<meta property="og:url" content="http://example.com/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="YY&#39;s Blog">
+<meta property="og:description" content="强化学习 参考教材  强化学习导论 — 强化学习导论  (qiwihui.com) 深度强化学习（全）_哔哩哔哩_bilibili 世界冠军带你从零实践强化学习_哔哩哔哩_bilibili  何为强化学习？其核心思想就是让智能体agent再环境environment中学习，根据环境的状态state，执行动作action，并根据环境的反馈reward(奖励)来指导更好的动作。其reward是延迟的，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.328888.xyz/2022/05/04/hIYbX.png">
+<meta property="article:published_time" content="2022-05-04T08:30:37.000Z">
+<meta property="article:modified_time" content="2022-05-04T08:42:22.201Z">
+<meta property="article:author" content="默默垂断续流">
+<meta property="article:tag" content="强化学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.328888.xyz/2022/05/04/hIYbX.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '强化学习',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-04 16:42:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s1.328888.xyz/2022/05/04/hIYbX.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YY's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">强化学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-04T08:30:37.000Z" title="发表于 2022-05-04 16:30:37">2022-05-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-05-04T08:42:22.201Z" title="更新于 2022-05-04 16:42:22">2022-05-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/">剑谱</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">天下第一剑:机器学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/">Pytorch</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="强化学习"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>强化学习</h1>
+<p>参考教材</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://rl.qiwihui.com/zh_CN/latest/">强化学习导论 — 强化学习导论  (qiwihui.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rv41167yx?spm_id_from=333.337.search-card.all.click">深度强化学习（全）_哔哩哔哩_bilibili</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1yv411i7xd?spm_id_from=333.337.search-card.all.click">世界冠军带你从零实践强化学习_哔哩哔哩_bilibili</a></p>
+</blockquote>
+<p>何为强化学习？其核心思想就是让智能体agent再环境environment中学习，根据环境的状态state，执行动作action，并根据环境的反馈reward(奖励)来指导更好的动作。其reward是延迟的，只有最后才知道reward。这更贴近生活，我们做了一件事往往在很久以后才能评判此事的结果。</p>
+<p>强化学习是一种学习如何将状态映射到动作，以获得最大奖励的学习机制。 学习者不会被告知要采取哪些动作，而是必须通过尝试来发现哪些动作会产生最大的回报。 在最有趣和最具挑战性的案例中，动作不仅可以影响直接奖励，还可以影响下一个状态，并通过下一个状态，影响到随后而来的奖励。 这两个特征 - 试错法和延迟奖励 - 是强化学习的两个最重要的可区别特征</p>
+<p>强化学习和监督学习的区别何在呢？</p>
+<p>主要来说，监督学习输出是一个认知，比如分类问题，我们要知道这张图片是什么。而强化学习输出是一个动作action，即我们要怎么做。</p>
+<p><img src="https://s1.328888.xyz/2022/04/28/AUk4k.png" alt="AUk4k.png"></p>
+<p>比如上图中，监督学习告诉我们这是一只灰熊，而强化学习让我们赶快装死。</p>
+<h2 id="Agent学习的两种方法：">Agent学习的两种方法：</h2>
+<p>基于价值的学习方法value-based:agent在每一次决策时都衡量不同策略的价值，选择价值最大的路线。常见算法有：</p>
+<ul>
+<li>sarsa</li>
+<li>Q-learning</li>
+<li>DQN</li>
+</ul>
+<p>有点类似于广度优先搜索有没有？</p>
+<p>基于策略的学习方法：policy-based：就是一条路走到头再回过头来衡量哪条路线reward更高</p>
+<ul>
+<li>随机性策略算法</li>
+</ul>
+<p>emm，类似深度优先搜索咯</p>
+<p>强化学习的分类多种多样，具体可以看下图：</p>
+<p><img src="https://s1.328888.xyz/2022/04/28/AeLmA.png" alt="AeLmA.png"></p>
+<h2 id="专业术语定义">专业术语定义</h2>
+<ul>
+<li>
+<p>State：状态</p>
+</li>
+<li>
+<p>Agent:需要学习做出动作的主体</p>
+</li>
+<li>
+<p><strong>Policy $\pi$:在状态为s的情况下做出动作a的概率密度。</strong><br>
+$$<br>
+\pi(a\vert s)=p(A=a\vert S=s)<br>
+$$</p>
+</li>
+<li>
+<p>reward:R</p>
+</li>
+<li>
+<p>p:状态转移概率：<br>
+$$<br>
+p(s’\vert s,a)=p(S’=s’\vert S=s,A=a)<br>
+$$</p>
+</li>
+<li>
+<p>Return:<br>
+$$<br>
+G_t=R_t+R_{t+1}+…+R_T<br>
+$$</p>
+</li>
+<li>
+<p>Discount retuen:</p>
+</li>
+</ul>
+<p>$$<br>
+G_T=R_t+\gamma R_{t+1}+\gamma^2R_{t+2}+…<br>
+$$</p>
+<p>强化学习任务通常使用马尔科夫决策过程MDP来描述：机器处于环境E中，状态空间为X，其中每个状态$x\in X$是机器感知到的环境的描述，机器能采取的动作构成了动作空间A ，若某个动作$$a\in A$$ 作用在当前状态x上，则潜在的转移函数P将使得环境从当前状态按某种概率转移到另一个状态，同时，环境会根据潜在的“奖赏函数R”反馈给机器一个奖赏。</p>
+<p><img src="https://s1.328888.xyz/2022/04/28/Au1p4.png" alt="Au1p4.png"></p>
+<p>一个简单的给西瓜浇水的马尔可夫决策过程如图所示，一共有四个状态：缺水、健康、溢水、凋亡，和两个动作：浇水、不浇水，再每一步转移后，若状态是保持瓜苗健康则获得奖赏1，缺水或溢水获得奖赏-1，死亡获得奖赏-100且无法恢复。</p>
+<p>model-based：p函数和r函数已知</p>
+<p>model-free：p函数和r函数未知</p>
+<h2 id="策略迭代">策略迭代</h2>
+<p>状态价值函数$Q(s_t,a_t)$：表示在状态$s_t$下执行$a_t$所能获得的价值</p>
+<p><img src="https://s1.328888.xyz/2022/04/28/Ay9MS.png" alt="Ay9MS.png"></p>
+<p>比如此图中，熊吼叫的时候为当前状态，此时执行动作一：装死的价值为0，执行动作二：跑路的价值为-90，那表示此种情形下装死比跑路好。同理，熊转身离开时，跑路比装死更好。</p>
+<p><strong>注意状态价值函数表格是由模型学习所得</strong>。</p>
+<p>**状态值-动作函数$Q(s_t,a_t)$**表示在状态$s_t$时采取$a_t$动作后所获得的累积奖赏的期望：(在状态$s_t$时采取$a_t$动作的分数)<br>
+$$<br>
+Q_\pi(s_t,a_t)=E_\pi(G_t\vert S_t=s_t,A_t=a_t)<br>
+$$<br>
+Optimal action-value function：表示当前状态下执行动作的最大分数<br>
+$$<br>
+Q^*(s_t,a_t)=\max_\pi Q_\pi (s_t,a_t)<br>
+$$</p>
+<p>**状态值函数：$V(s_t)$**表示在状态$s_t$后所获得的累积奖赏代码期望：（在状态$s_t$时的分数）<br>
+$$<br>
+V(s_t)=E_\pi(G_t\vert s_t)=E_A[Q_\pi(s_t,A))]=\sum_{a\in A}\pi(s_t,a)Q(s_t,a)<br>
+$$</p>
+<p>那么对应的T步Q,V函数为：<br>
+$$<br>
+\begin{cases}<br>
+V_T^\pi(s)=E_\pi(\frac{1}{T}\sum_{t=1}^TR_t \vert s_0=s)\\<br>
+Q_T^\pi(s,a)=E_\pi(\frac{1}{T}\sum_{t=1}^TR_t \vert s_0=s,a_0=a)<br>
+\end{cases}<br>
+$$<br>
+$\gamma$折扣Q,V函数为：</p>
+<p>$$<br>
+\begin{cases}<br>
+V_\gamma ^\pi(s)=E_\pi(\frac{1}{T}\sum_{t=0}^{T-1}\gamma^tR_{t+1} \vert s_0=s)\\<br>
+Q_\gamma ^\pi(s,a)=E_\pi(\frac{1}{T}\sum_{t=0}^{T-1}\gamma ^tR_{t+1} \vert s_0=s,a_0=a)<br>
+\end{cases}<br>
+$$</p>
+<p>对T步V函数进行一下展开：</p>
+<p>$$<br>
+\begin{aligned}<br>
+V_T^\pi(s)&amp;=E_\pi(\frac{1}{T}\sum_{t=1}^TR_t \vert s_0=s)\\<br>
+&amp;=\sum_{a \in A}\pi(s,a)E_\pi(\frac{1}{T}\sum_{t=1}^TR_t \vert s_0=s,a_0=a)\\<br>
+&amp;=\sum_{a \in A}\pi(s,a)[\frac{1}{T}E_{\pi}(R_1\vert s_0=s,a_0=a)+E_\pi(\frac{1}{T}\sum_{t=2}^TR_t \vert s_0=s,a_0=a)]<br>
+\end{aligned}<br>
+$$</p>
+<p>其中：</p>
+<p>$$<br>
+E_{\pi}(R_1\vert s_0=s,a_0=a)=\sum_{s’\in S}P(s_1=s’\vert s_0=s,a_0=a )E_{\pi}[R_{1}\vert s_0=s,a_0=a]<br>
+$$</p>
+<p>$$<br>
+\begin{aligned}<br>
+E_\pi(\sum_{t=2}^TR_t \vert s_0=s,a_0=a)&amp;=\sum_{s’\in S}P(s_1=s’\vert s_0=s,a_0=a )E_{\pi}[\sum_{t=1}^{T-1}R_t\vert s_0=s’]\\<br>
+&amp;=\sum_{s’\in S}P(s_1=s’\vert s_0=s,a_0=a )(T-1)V_{T}^{\pi}(s’)<br>
+\end{aligned}<br>
+$$</p>
+<p>那么：<br>
+$$<br>
+\begin{aligned}<br>
+V_T^\pi(s)&amp;=E_{\pi}[\frac{1}{T}R_1+\frac{T-1}{T}\frac{1}{T-1}\sum_{t=2}^TR_t\vert s_0=s]\\<br>
+&amp;=\sum_{a \in A}\pi(s,a)\sum_{s’\in S}P(s_1=s’\vert s_0=s,a_0=a )(\frac{1}{T}E_{\pi}[R_{1}\vert s_0=s,a_0=a]+\frac{T-1}{T}E_{\pi}[\sum_{t=1}^{T-1}R_t\vert s_0=s’])\\<br>
+&amp;=\sum_{a \in A}\pi(s,a)\sum_{s’\in S}P(s_1=s’\vert s_0=s,a_0=a )(\frac{1}{T}E_{\pi}[R_{1}\vert s_0=s,a_0=a]+\frac{T-1}{T}V_{T-1}^\pi(s’))<br>
+\end{aligned}<br>
+$$</p>
+<p>如此我们就得到了V函数的递推公式：</p>
+<p>如果令：<br>
+$$<br>
+P_{s\rightarrow s’}^a=P(s_1=s’\vert s_0=s,a_0=a )<br>
+$$</p>
+<p>$$<br>
+R_{s\rightarrow s’}^\pi=E_{\pi}[R_{1}\vert s_0=s,a_0=a]<br>
+$$</p>
+<p>那么我们可得：<br>
+$$<br>
+\begin{cases}<br>
+V_T^\pi=\sum_{a \in A}\pi(s,a)\sum_{s’\in S}P_{s\rightarrow s’}^a(\frac{1}{T}R_{s\rightarrow s’}^\pi+\frac{T-1}{T}V_{T-1}^\pi(s’))\\<br>
+Q_T^\pi=\sum_{s’\in S}P_{s\rightarrow s’}^a(\frac{1}{T}R_{s\rightarrow s’}^\pi+\frac{T-1}{T}V_{T-1}^\pi(s’))<br>
+\end{cases}<br>
+$$</p>
+<p>$$<br>
+\begin{cases}<br>
+V_\gamma^\pi=\sum_{a \in A}\pi(s,a)\sum_{s’\in S}P_{s\rightarrow s’}^a(R_{s\rightarrow s’}^\pi+\gamma V_\gamma^\pi(s’))\\<br>
+Q_\gamma^\pi=\sum_{s’\in S}P_{s\rightarrow s’}^a(R_{s\rightarrow s’}^\pi+\gamma V_\gamma^\pi(s’))<br>
+\end{cases}<br>
+$$</p>
+<p>通过迭代求出策略$\pi$情况下Q,V函数的过程我们就称其为：<strong>策略评估</strong></p>
+<p>求出以上Q,V函数后，我们接下来需要根据这两个函数对策略$\pi$进行改进，我们称其为：<strong>策略改进</strong></p>
+<p>策略评估与策略改进不断交替迭代就是所谓的 <strong>广义策略迭代算法：GPL</strong></p>
+<p><img src="https://s1.328888.xyz/2022/04/29/A8vxR.png" alt="A8vxR.png"></p>
+<p>对于理想化的策略，我们肯定希望其能最大化累计奖励v:<br>
+$$<br>
+\pi^*=\arg\max_\pi \sum_{s \in S}V^\pi(s)<br>
+$$<br>
+那么强化学习的问题定义可以转化为：</p>
+<p>给定马尔可夫决策过程MDP={S,A,P,R,$\gamma$}，<strong>寻找一个最有策略$\pi^*$，对任意$s \in S$使得$V_{\pi^*}(S)$的值最大</strong></p>
+<p>那我们将每个状态选取动作时直接取Q函数最大的动作，不久能使V最大了吗，即：</p>
+<p>$$<br>
+V^<em>(s)=\max_{a \in A}Q^{\pi^</em>}(s,a)<br>
+$$</p>
+<p>$$<br>
+\begin{cases}<br>
+Q_T^<em>(s,a)=\sum_{s’\in S}P_{s\rightarrow s’}^a(\frac{1}{T}R_{s\rightarrow s’}^\pi+\frac{T-1}{T}\max_{a’ \in A}Q_{t-1}^</em>(s’,a’))\\<br>
+Q_\gamma^\pi=\sum_{s’\in S}P_{s\rightarrow s’}^a(R_{s\rightarrow s’}^\pi+\gamma \max_{a’ \in A}Q_{\gamma}^*(s’,a’))<br>
+\end{cases}<br>
+$$</p>
+<p>不妨令动作改变后的策略为$\pi’$，改变动作的条件为$Q^\pi(s,\pi’(s))\geq V^\pi(s)$,那么根据Q函数递推式，可得：</p>
+<p>$$<br>
+\begin{aligned}<br>
+V^\pi(s)&amp;\leq Q^\pi(s,\pi’(s))\\<br>
+&amp;=\sum_{s’\in S}P_{s\rightarrow s’}^{\pi’(s)}(R_{s\rightarrow s’}^{\pi’(s)}+\gamma V^\pi(s’))\\<br>
+&amp;\leq \sum_{s’\in S}P_{s\rightarrow s’}^{\pi’(s)}(R_{s\rightarrow s’}^{\pi’(s)}+\gamma Q^\pi(s’,\pi’(s’)))\\<br>
+&amp;=…\\<br>
+&amp;=V^{\pi’}(s)<br>
+\end{aligned}</p>
+<p>$$<br>
+由此可见值函数对于策略每一点改进都是<strong>单调递增</strong>的，因此对于当前策略$\pi$,我们可以放心的将其改进为：</p>
+<p>$$<br>
+\pi’(s)=\arg\max_{a \in A}Q^{\pi}(s,a)<br>
+$$</p>
+<p>$$<br>
+\begin{cases}<br>
+V_T^\pi=\max_{a \in A}\sum_{s’\in S}P_{s\rightarrow s’}^a(\frac{1}{T}R_{s\rightarrow s’}^a+\frac{T-1}{T}V_{T-1}^<em>(s’))\\<br>
+V_\gamma^\pi=\max_{a \in A}\sum_{s’\in S}P_{s\rightarrow s’}^a(R_{s\rightarrow s’}^a+\gamma V_\gamma^</em>(s’))<br>
+\end{cases}<br>
+$$</p>
+<p><img src="https://s1.328888.xyz/2022/04/29/AAaUd.png" alt="AAaUd.png"></p>
+<h2 id="值迭代">值迭代</h2>
+<p>求Optimal action-value function：表示当前状态下执行动作的最大分数<br>
+$$<br>
+Q^<em>(s_t,a_t)=\max_\pi Q_\pi (s_t,a_t)<br>
+$$<br>
+我们就可以根据所求的$Q^</em>(s_t,a_t)$判断执行何种动作：<br>
+$$<br>
+a^<em>=\arg\max_aQ^</em>(s,a)<br>
+$$<br>
+我们需要做的就是去近似$Q^*$函数</p>
+<h2 id="总结">总结</h2>
+<p><strong>两个主体</strong></p>
+<ul>
+<li>Agent</li>
+<li>Environment</li>
+</ul>
+<p>一个框架：MDP</p>
+<p><strong>五大元素：</strong></p>
+<p>​	三个集合：</p>
+<ul>
+<li>S</li>
+<li>A</li>
+<li>R</li>
+</ul>
+<p>两个分布：</p>
+<ul>
+<li>$\pi$</li>
+<li>p</li>
+</ul>
+<p><strong>核心问题：如何找出最优策略$\pi^*$？</strong></p>
+<p><strong>价值函数：V,Q</strong></p>
+<p><strong>迭代算法：</strong></p>
+<ul>
+<li>策略评估</li>
+<li>策略改进</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">默默垂断续流</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">http://example.com/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YY's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a></div><div class="post_share"><div class="social-share" data-image="https://s1.328888.xyz/2022/05/04/hIYbX.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/"><img class="next-cover" src="https://s1.328888.xyz/2022/04/27/8vXNM.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">生成对抗网络</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81NjAzNS8zMjQ5OA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">默默垂断续流</div><div class="author-info__description">记录有意义的一切</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/yy-199908"><i class="fab fa-github"></i><span>github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/yy-199908" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1102525983@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="tencent://AddContact/?fromId=50&amp;fromSubId=1&amp;subcmd=all&amp;uin=1102525983" target="_blank" title="qq"><i class="fa-brands fa-qq"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">强化学习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Agent%E5%AD%A6%E4%B9%A0%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">Agent学习的两种方法：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD%E5%AE%9A%E4%B9%89"><span class="toc-number">1.2.</span> <span class="toc-text">专业术语定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E8%BF%AD%E4%BB%A3"><span class="toc-number">1.3.</span> <span class="toc-text">策略迭代</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%80%BC%E8%BF%AD%E4%BB%A3"><span class="toc-number">1.4.</span> <span class="toc-text">值迭代</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习"><img src="https://s1.328888.xyz/2022/05/04/hIYbX.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习"/></a><div class="content"><a class="title" href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习">强化学习</a><time datetime="2022-05-04T08:30:37.000Z" title="发表于 2022-05-04 16:30:37">2022-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/" title="生成对抗网络"><img src="https://s1.328888.xyz/2022/04/27/8vXNM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成对抗网络"/></a><div class="content"><a class="title" href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/" title="生成对抗网络">生成对抗网络</a><time datetime="2022-04-27T13:42:14.000Z" title="发表于 2022-04-27 21:42:14">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/" title="生成模型"><img src="https://s1.328888.xyz/2022/04/27/8v2VZ.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成模型"/></a><div class="content"><a class="title" href="/2022/04/27/%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/" title="生成模型">生成模型</a><time datetime="2022-04-27T13:42:10.000Z" title="发表于 2022-04-27 21:42:10">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/" title="RNN的pytorch实现"><img src="https://s1.328888.xyz/2022/04/27/8Zyjd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RNN的pytorch实现"/></a><div class="content"><a class="title" href="/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/" title="RNN的pytorch实现">RNN的pytorch实现</a><time datetime="2022-04-27T11:31:53.000Z" title="发表于 2022-04-27 19:31:53">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/RNN%E7%9A%84%E6%9B%B4%E5%A4%9A%E5%BA%94%E7%94%A8/" title="RNN的更多应用"><img src="https://s1.328888.xyz/2022/04/27/8ZgJQ.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RNN的更多应用"/></a><div class="content"><a class="title" href="/2022/04/27/RNN%E7%9A%84%E6%9B%B4%E5%A4%9A%E5%BA%94%E7%94%A8/" title="RNN的更多应用">RNN的更多应用</a><time datetime="2022-04-27T11:31:39.000Z" title="发表于 2022-04-27 19:31:39">2022-04-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s1.328888.xyz/2022/05/04/hIYbX.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By 默默垂断续流</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadLivere () {
+  if (typeof LivereTower === 'object') {
+    window.LivereTower.init()
+  }
+  else {
+    (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  }
+}
+
+if ('Livere' === 'Livere' || !false) {
+  if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+  else loadLivere()
+}
+else {
+  function loadOtherComment () {
+    loadLivere()
+  }
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                console.log('已挂载electric_clock')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"superSample":2,"width":250,"height":500,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":false,"scale":0.5},"react":{"opacityDefault":0.7,"opacityOnHover":0.2},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
