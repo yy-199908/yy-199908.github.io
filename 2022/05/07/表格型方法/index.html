@@ -1,0 +1,354 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>表格型方法 | YY's Blog</title><meta name="keywords" content="强化学习,Q-learning,Sarsa"><meta name="author" content="默默垂断续流"><meta name="copyright" content="默默垂断续流"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="表格型方法 对于免模型的强化学习方法，agent多次尝试与environmet交互之后，就能对其不同状态做出判断，用状态动作价值来表达在某个状态下某个动作的好坏。如果Q表格是一张已经训练好的表格，这张表格就像是一本生活手册。通过查看这本手册，我们就知道在熊发怒的时候，装死的价值会高一点；在熊离开的时候，我们 偷偷逃跑会比较容易获救。这张表格里面 Q 函数的意义就是我们选择了某个动作后，最后能不能成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="表格型方法">
+<meta property="og:url" content="http://example.com/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="YY&#39;s Blog">
+<meta property="og:description" content="表格型方法 对于免模型的强化学习方法，agent多次尝试与environmet交互之后，就能对其不同状态做出判断，用状态动作价值来表达在某个状态下某个动作的好坏。如果Q表格是一张已经训练好的表格，这张表格就像是一本生活手册。通过查看这本手册，我们就知道在熊发怒的时候，装死的价值会高一点；在熊离开的时候，我们 偷偷逃跑会比较容易获救。这张表格里面 Q 函数的意义就是我们选择了某个动作后，最后能不能成">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.328888.xyz/2022/05/07/4gvhO.png">
+<meta property="article:published_time" content="2022-05-07T05:02:02.000Z">
+<meta property="article:modified_time" content="2022-05-07T05:07:41.462Z">
+<meta property="article:author" content="默默垂断续流">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="Q-learning">
+<meta property="article:tag" content="Sarsa">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.328888.xyz/2022/05/07/4gvhO.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '表格型方法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-07 13:07:41'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s1.328888.xyz/2022/05/07/4gvhO.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YY's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">表格型方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-07T05:02:02.000Z" title="发表于 2022-05-07 13:02:02">2022-05-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-05-07T05:07:41.462Z" title="更新于 2022-05-07 13:07:41">2022-05-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/">剑谱</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">天下第一剑:机器学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/">Pytorch</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="表格型方法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>表格型方法</h1>
+<p>对于免模型的强化学习方法，agent多次尝试与environmet交互之后，就能对其不同状态做出判断，用状态动作价值来表达在某个状态下某个动作的好坏。如果<strong>Q表格</strong>是一张已经训练好的表格，这张表格就像是一本生活手册。通过查看这本手册，我们就知道在熊发怒的时候，装死的价值会高一点；在熊离开的时候，我们 偷偷逃跑会比较容易获救。这张表格里面 Q 函数的意义就是我们选择了某个动作后，最后能不能成功，就 需要我们去计算在某个状态下选择某个动作，后续能够获得多少总奖励。如果可以预估未来的总奖励的大 小，我们就知道在当前的状态下选择哪个动作价值更高。我们选择某个动作是因为这样未来可以获得的价 值会更高。所以强化学习的目标导向性很强，环境给出的奖励是非常重要的反馈，它根据环境的奖励来做选择。</p>
+<p>​	我们所求的<strong>Q表格</strong>，它的行数是所有状态的数量，列数是所有可采取的动作数量，在格子世界中大概如图所示：</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hNV2t.png" alt="hNV2t.png"></p>
+<p>​	最开始的时候，Q 表格会全部初始化为 0。智能体会不断和环境交互得到不同的轨迹，当交互的 次数足够多的时候，我们就可以估算出每一个状态下，每个动作的平均总奖励，进而更新 Q 表格。</p>
+<p>​	在强化学习里面，我们可以每走一步更新一次 Q 表格，用下一个状态的 Q 值来更新当前状态的 Q 值，这 种单步更新的方法被称为时序差分方法。</p>
+<h2 id="免模型方法">免模型方法</h2>
+<h3 id="蒙特卡洛">蒙特卡洛</h3>
+<p><strong>蒙特卡洛方法</strong>是基于采样的方法，就是把多次采样值的均值作为该随机变量的期望。</p>
+<p>给定策略$\pi$，我们让我们让智能体与环境进行交互，可以得到很多轨迹。 每个轨迹都有对应的回报：<br>
+$$<br>
+G_t=r_{t+1}+\gamma r_{t+2}+\gamma^2r_{t+3}+…<br>
+$$<br>
+我们求出从状态s出发所有轨迹的回报的平均值，将其作为一个策略s状态的价值：$V_\pi(s)$</p>
+<p>假设现在有样本$x_1,x_2,…,x_t$,我们可以把均值转化成均值增量的形式：</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hNoeA.png" alt="hNoeA.png"></p>
+<p>若在每个回合中，如果时间t时状态s被访问了，那么：</p>
+<ul>
+<li>状态s 的访问数$N(s)$增加1，$N(s) \leftarrow N(s)+1$</li>
+<li>状态s的总回报$S(s)$增加$G_t$,$S(s)\leftarrow S(s)+G_t$</li>
+</ul>
+<p>状态s的价值可以通过回报的平均来估计，即$V(s)=S(s)/N(s)$</p>
+<p>那将均值增量应用到蒙特卡洛方法中：</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hNBqS.png" alt="hNBqS.png"></p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hSl3C.png" alt="hSl3C.png"></p>
+<h3 id="时序差分">时序差分</h3>
+<p><img src="https://s1.328888.xyz/2022/04/29/A4Zt7.png" alt="A4Zt7.png"></p>
+<p>比如我们需要使用模型估计从纽约到亚特兰大的时间，模型初始时估计值为1000分钟</p>
+<p><img src="https://s1.328888.xyz/2022/04/29/A4jaX.png" alt="A4jaX.png"></p>
+<p>而我们真实的时间为860分钟，传统的BP算法会计算真实时间与估计时间的loss，然后求导进行参数更新。</p>
+<p>但是若我们没有到亚特兰大，而是在中途有事耽误了呢？传统的BP算法就无法计算了，因为我们没有y label。</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4gMMP.png" alt="4gMMP.png"></p>
+<p>比如我们花了300分钟到了华盛顿之后就不走了，TD算法会给出华盛顿到亚特兰大的时间估计，然后：<br>
+$$<br>
+loss=\frac{1}{2}(T_{NYC2At}^e-(T_{NYC2DC}^a+T_{DC2At}^e))^2<br>
+$$</p>
+<p>$$<br>
+=\frac{1}{2}(T_{NYC2DC}^e-T_{NYC2DC}^a)^2<br>
+$$</p>
+<p>其中上标表示：e-估计值，a-实际值，下标表示不同城市<br>
+$$<br>
+TD target=T_{NYC2DC}^a+T_{DC2At}^e<br>
+$$<br>
+TDtaeget肯定比模型最开始的估计值要好，因为其中有一部分是真实值。</p>
+<p>$$<br>
+Q(s_t,a_t;w)\approx R_t^a+\gamma Q(s_{t+1},a_{t+1};w)<br>
+$$<br>
+对比一下，也是一个真实值加上一个预测值！左边为模型预测值，右边为TDtarget。上述公式又是哪来的呢？<br>
+$$<br>
+\begin{aligned}<br>
+G_t&amp;=R_t+\gamma R_{t+1}+\gamma^2R_{t+2}+…\\<br>
+&amp;=R_t+\gamma(R_{t+1}+\gamma R_{t+2}+…)\\<br>
+&amp;=R_t+\gamma G_{t+1}<br>
+\end{aligned}<br>
+$$</p>
+<p>那么用估计得到的回报$r_{t+1}+\gamma V(s_{t+1})$更新上一时刻的值$V(s_t)$:<br>
+$$<br>
+V(s_t)\leftarrow V(s_t)+\alpha(r_{t+1}+\gamma V(s_{t+1})-V(s_t))<br>
+$$<br>
+​	对比一下蒙特卡洛方法和时序差分方法。在蒙特卡洛方法里面，$G_{i,t}$ 是实际得到的值（可以看成 目标），因为它已经把一条轨迹跑完了，可以算出每个状态实际的回报。时序差分不等轨迹结束，往前走 一步，就可以更新价值函数.</p>
+<p>进一步比较时序差分方法和蒙特卡洛方法:</p>
+<ul>
+<li>时序差分方法可以在线学习（online learning），每走一步就可以更新，效率高。蒙特卡洛方法必 须等游戏结束时才可以学习</li>
+<li>时序差分方法可以从不完整序列上进行学习。蒙特卡洛方法只能从完整的序列上进行学习</li>
+<li>时序差分方法可以在连续的环境下（没有终止）进行学习。蒙特卡洛方法只能在有终止的情况下 学习。</li>
+<li>时序差分方法利用了马尔可夫性质，在马尔可夫环境下有更高的学习效率。蒙特卡洛方法没有假设环境具有马尔可夫性质，利用采样的价值来估计某个状态的价值，在不是马尔可夫的环境下更加有效.</li>
+</ul>
+<p>我们可以把时序差分方法进行进一步的推广。之前是只往前走一步，即 TD(0)。我 们可以调整步数（step），变成 n 步时序差分（n-step TD）。比如 TD(2)，即往前走两步，利用两步得到 的回报，使用自举来更新状态的价值。这样我们就可以通过步数来调整算法需要的实际奖励</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hSJek.png" alt="hSJek.png"></p>
+<p>如果时序差分方法需要更广度的更新，就变成了动态规划方法（因为动态规划方法 是把所有状态都考虑进去来进行更新）。如果时序差分方法需要更深度的更新，就变成了蒙特卡洛方法</p>
+<h2 id="Sarsa算法：同策略时序差分控制">Sarsa算法：同策略时序差分控制</h2>
+<p>时序差法方法是给定一个策略，然后我们去估计他的价值函数，Sarsa算法很简单，他将原本时序差分方法更新V的过程，变成了更新Q的过程：<br>
+$$<br>
+Q(s_t,a_t)\leftarrow Q(s_t,a_t)+\alpha[r_{t+1}+\gamma Q(s_{t+1},a_{t+1})-Q(s_t,a_t)]<br>
+$$<br>
+Sarsa直接估计Q表格，得到Q表格后，就可以更新策略。</p>
+<p>该算法由于需要知道当前的状态、当前的动作、奖励、下一步状态、下一步动作，即$(s_t,a_t,R_t,s_{t+1},a_{t+1})$,所以叫做Sarsa算法。</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hST3S.png" alt="hST3S.png"></p>
+<p>上述算法每执行一个动作就更新一次价值和策略，所以也叫做单步Sarsa算法，那很明显，也有<strong>n步Sarsa算法</strong>：</p>
+<p>对于Sarsa，在t时刻的价值为：<br>
+$$<br>
+Q_t=r_{t+1}+\gamma Q(s_{t+1},a_{t+1})<br>
+$$<br>
+对于n步Sarsa，其n步回报为：<br>
+$$<br>
+Q_t^n=r_{t+1}+\gamma r_{t+2}+…\gamma^{n-1}r_{t+n}+\gamma ^nQ(s_{t+n},a_{t+n})<br>
+$$<br>
+加上<strong>资格迹衰减参数</strong>得Sarsa$(\lambda)$的Q回报：<br>
+$$<br>
+Q_t^\lambda=(1-\lambda)\sum_{n=1}^\infty\lambda^{n-1}Q_t^n<br>
+$$<br>
+n步Sarsa更新策略为：<br>
+$$<br>
+Q(s_t,a_t)\leftarrow Q(s_t,a_t)+\alpha(Q_t^\lambda-Q(s_t,a_t))<br>
+$$</p>
+<h2 id="Q-learning-异策略时序差分控制">Q-learning:异策略时序差分控制</h2>
+<p>Sarsa 是一种<strong>同策略（on-policy）算法</strong>，它优化的是它实际执行的策略，它直接用下一步会执行的动作去优化 Q 表格。同策略在学习的过程中，只存在一种策略，它用一种策略去做动作的选取，也用一种策略去做优化。所以 Sarsa 知道它下一步的动作有可能会跑到悬崖那边去，它就会在优化自己的策略的时 候，尽可能离悬崖远一点。这样子就会保证，它下一步哪怕是有随机动作，它也还是在安全区域内。</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hSaXJ.png" alt="hSaXJ.png"></p>
+<p>Q 学习是一种<strong>异策略（off-policy）算法</strong>。如图 3.31 所示，异策略在学习的过程中，有两种不同的策 略：目标策略（target policy）和行为策略（behavior policy）。目标策略是我们需要去学习的策略，一 般用 π 来表示。目标策略就像是在后方指挥战术的一个军师，它可以根据自己的经验来学习最优的策略， 不需要去和环境交互。行为策略是探索环境的策略，一般用 µ 来表示。行为策略可以大胆地去探索到所有 可能的轨迹，采集轨迹，采集数据，然后把采集到的数据“喂”给目标策略学习。而且“喂”给目标策略的数据中并不需要 $a_{t+1}$ ，而 Sarsa 是要有$a_{t+1}$ 的。行为策略像是一个战士，可以在环境里面探索所有的 动作、轨迹和经验，然后把这些经验交给目标策略去学习。比如目标策略优化的时候，Q 学习不会管我们下一步去往哪里探索，它只选取奖励最大的策略。</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hSkCF.png" alt="hSkCF.png"></p>
+<p>Q 学习有两种策略：行为策略和目标策略。目标策略 π 直接在 Q 表格上使用贪心策略，取它下一步能得到的所有状态，即<br>
+$$<br>
+\pi(s_{t+1})=\arg\max_{a’} Q(S_{t+1},a’)<br>
+$$<br>
+行为策略 µ 可以是一个随机的策略，但我们采取 ε-贪心策略，让行为策略不至于是完全随机的，它是基 于 Q 表格逐渐改进的.</p>
+<p>那么Q-learning的更新公式为：<br>
+$$<br>
+Q(s_t,a_t)\leftarrow Q(s_t,a_t)+\alpha[r_{t+1}+\gamma\max_aQ(s_{t+1},a)-Q(s_t,a_t)]<br>
+$$<br>
+Sarsa 在更新 Q 表格的时候，它用到的是 A′ 。我们要获取下一个 Q 值的时候，A′ 是下一个步骤一定会执行的动作，这个动作有可能是 ε-贪心方法采样出来的动作，也有 可能是最大化 Q 值对应的动作，也有可能是随机动作，但这是它实际执行的动作。但是 Q 学习在更新 Q 表格的时候，它用到的是 Q 值 Q(S ′ , a) 对应的动作，它不一定是下一个步骤会执行的实际的动作，因为我们下一个实际会执行的动作可能会探索。Q 学习默认的下一个动作不是通过行为策略来选取的,Q 学习直接看 Q 表格，取它的最大化的值，它是默认 A′ 为最佳策略选取的动作，所以 Q 学习在学习的时候，不需要传入 A′，即$a_{t+1}$的值。</p>
+<p><img src="https://s1.328888.xyz/2022/05/06/hoWOk.png" alt="hoWOk.png"></p>
+<h2 id="Q-learning和Sarsa算法分别实现CliffWalking">Q-learning和Sarsa算法分别实现CliffWalking</h2>
+<p>我们首先简单介绍 CliffWalking-v0 环境，该环境中文名为悬崖寻路（cliffwalking），是一个迷宫类问 题。如图 3.36 所示，在一个 4 × 12 的网格中，智能体以网格的左下角位置为起点，以网格的右下角位置 为终点，目标是移动智能体到达终点位置，智能体每次可以在上、下、左、右这 4 个方向中移动一步，每 移动一步会得到 −1 单位的奖励。</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4gbGg.png" alt="4gbGg.png"></p>
+<p>起终点之间是一段悬崖，即编号为 37 46 的网格，智能体移动过程中会有如下的限制：</p>
+<ul>
+<li>智能体不能移出网格，如果智能体想执行某个动作移出网格，那么这一步智能体不会移动，但是 这个操作依然会得到 −1 单位的奖励</li>
+<li>如果智能体“掉入悬崖”，会立即回到起点位置，并得到 −100 单位的奖励</li>
+<li>当智能体移动到终点时，该回合结束，该回合总奖励为各步奖励之和。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> argparse <span class="keyword">import</span> Action</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"><span class="keyword">import</span> gym</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> turtle</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line">parse=argparse.ArgumentParser()</span><br><span class="line">parse.add_argument(<span class="string">&#x27;-lr&#x27;</span>,default=<span class="number">0.1</span>)</span><br><span class="line">parse.add_argument(<span class="string">&#x27;-gamma&#x27;</span>,default=<span class="number">0.9</span>)</span><br><span class="line">parse.add_argument(<span class="string">&#x27;-epsilon_start&#x27;</span>,default=<span class="number">0.1</span>)</span><br><span class="line">parse.add_argument(<span class="string">&#x27;-epsilon_end&#x27;</span>,default=<span class="number">0.01</span>)</span><br><span class="line">parse.add_argument(<span class="string">&#x27;-epsilon_decay&#x27;</span>,default=<span class="number">20</span>)</span><br><span class="line">parse.add_argument(<span class="string">&#x27;-train_eps&#x27;</span>,default=<span class="number">1000</span>)</span><br><span class="line">args=parse.parse_args()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CliffWalkingWapper</span>(gym.Wrapper):<span class="comment">#结果可视化</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, env</span>):</span><br><span class="line">        gym.Wrapper.__init__(self, env)</span><br><span class="line">        self.t = <span class="literal">None</span></span><br><span class="line">        self.unit = <span class="number">50</span></span><br><span class="line">        self.max_x = <span class="number">12</span></span><br><span class="line">        self.max_y = <span class="number">4</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">draw_x_line</span>(<span class="params">self, y, x0, x1, color=<span class="string">&#x27;gray&#x27;</span></span>):</span><br><span class="line">        <span class="keyword">assert</span> x1 &gt; x0</span><br><span class="line">        self.t.color(color)</span><br><span class="line">        self.t.setheading(<span class="number">0</span>)</span><br><span class="line">        self.t.up()</span><br><span class="line">        self.t.goto(x0, y)</span><br><span class="line">        self.t.down()</span><br><span class="line">        self.t.forward(x1 - x0)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">draw_y_line</span>(<span class="params">self, x, y0, y1, color=<span class="string">&#x27;gray&#x27;</span></span>):</span><br><span class="line">        <span class="keyword">assert</span> y1 &gt; y0</span><br><span class="line">        self.t.color(color)</span><br><span class="line">        self.t.setheading(<span class="number">90</span>)</span><br><span class="line">        self.t.up()</span><br><span class="line">        self.t.goto(x, y0)</span><br><span class="line">        self.t.down()</span><br><span class="line">        self.t.forward(y1 - y0)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">draw_box</span>(<span class="params">self, x, y, fillcolor=<span class="string">&#x27;&#x27;</span>, line_color=<span class="string">&#x27;gray&#x27;</span></span>):</span><br><span class="line">        self.t.up()</span><br><span class="line">        self.t.goto(x * self.unit, y * self.unit)</span><br><span class="line">        self.t.color(line_color)</span><br><span class="line">        self.t.fillcolor(fillcolor)</span><br><span class="line">        self.t.setheading(<span class="number">90</span>)</span><br><span class="line">        self.t.down()</span><br><span class="line">        self.t.begin_fill()</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">4</span>):</span><br><span class="line">            self.t.forward(self.unit)</span><br><span class="line">            self.t.right(<span class="number">90</span>)</span><br><span class="line">        self.t.end_fill()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">move_player</span>(<span class="params">self, x, y</span>):</span><br><span class="line">        self.t.up()</span><br><span class="line">        self.t.setheading(<span class="number">90</span>)</span><br><span class="line">        self.t.fillcolor(<span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">        self.t.goto((x + <span class="number">0.5</span>) * self.unit, (y + <span class="number">0.5</span>) * self.unit)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">render</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.t == <span class="literal">None</span>:</span><br><span class="line">            self.t = turtle.Turtle()</span><br><span class="line">            self.wn = turtle.Screen()</span><br><span class="line">            self.wn.setup(self.unit * self.max_x + <span class="number">100</span>,</span><br><span class="line">                          self.unit * self.max_y + <span class="number">100</span>)</span><br><span class="line">            self.wn.setworldcoordinates(<span class="number">0</span>, <span class="number">0</span>, self.unit * self.max_x,</span><br><span class="line">                                        self.unit * self.max_y)</span><br><span class="line">            self.t.shape(<span class="string">&#x27;circle&#x27;</span>)</span><br><span class="line">            self.t.width(<span class="number">2</span>)</span><br><span class="line">            self.t.speed(<span class="number">0</span>)</span><br><span class="line">            self.t.color(<span class="string">&#x27;gray&#x27;</span>)</span><br><span class="line">            <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>):</span><br><span class="line">                self.t.forward(self.max_x * self.unit)</span><br><span class="line">                self.t.left(<span class="number">90</span>)</span><br><span class="line">                self.t.forward(self.max_y * self.unit)</span><br><span class="line">                self.t.left(<span class="number">90</span>)</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, self.max_y):</span><br><span class="line">                self.draw_x_line(</span><br><span class="line">                    y=i * self.unit, x0=<span class="number">0</span>, x1=self.max_x * self.unit)</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, self.max_x):</span><br><span class="line">                self.draw_y_line(</span><br><span class="line">                    x=i * self.unit, y0=<span class="number">0</span>, y1=self.max_y * self.unit)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, self.max_x - <span class="number">1</span>):</span><br><span class="line">                self.draw_box(i, <span class="number">0</span>, <span class="string">&#x27;black&#x27;</span>)</span><br><span class="line">            self.draw_box(self.max_x - <span class="number">1</span>, <span class="number">0</span>, <span class="string">&#x27;yellow&#x27;</span>)</span><br><span class="line">            self.t.shape(<span class="string">&#x27;turtle&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        x_pos = self.s % self.max_x</span><br><span class="line">        y_pos = self.max_y - <span class="number">1</span> - <span class="built_in">int</span>(self.s / self.max_x)</span><br><span class="line">        self.move_player(x_pos, y_pos)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Qlearning</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,n_states,n_actions,args</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        self.Q_table=np.zeros((n_states,n_actions))</span><br><span class="line">        self.epsilon_start=args.epsilon_start</span><br><span class="line">        self.epsilon_end=args.epsilon_end</span><br><span class="line">        self.epsilon_decay=args.epsilon_decay</span><br><span class="line">        self.choose_action_dim=np.array([<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line">        self.lr=args.lr</span><br><span class="line">        self.gamma=args.gamma</span><br><span class="line">        self.sample_count=<span class="number">0</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">choose_action</span>(<span class="params">self,state</span>):<span class="comment">#theta 逐渐下降的theta-贪心算法选取当前动作</span></span><br><span class="line">        self.sample_count+=<span class="number">1</span></span><br><span class="line">        self.epsilon=self.epsilon_end+(self.epsilon_start-self.epsilon_end)*math.exp(-<span class="number">1</span>*self.sample_count/self.epsilon_decay)</span><br><span class="line">        <span class="keyword">if</span> np.random.uniform(<span class="number">0</span>,<span class="number">1</span>)&lt;<span class="number">1</span>-self.epsilon+(self.epsilon/<span class="number">4</span>):</span><br><span class="line">            action=np.argmax(self.Q_table[state])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            action=np.random.choice(self.choose_action_dim)</span><br><span class="line">        <span class="keyword">return</span> action</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update</span>(<span class="params">self,state,action,reward,next_state,done</span>):</span><br><span class="line">        <span class="keyword">if</span> done:</span><br><span class="line">            Q_target=reward</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            Q_target=reward+self.gamma*np.<span class="built_in">max</span>(self.Q_table[next_state])</span><br><span class="line">            self.Q_table[state][action]+=self.lr*(Q_target-self.Q_table[state][action])<span class="comment">#Q-learning 更新公式</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_action</span>(<span class="params">self,state</span>):</span><br><span class="line">        <span class="keyword">return</span> np.argmax(self.Q_table[state])</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Sarsa</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,n_states,n_actions,args</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        self.Q_table=np.zeros((n_states,n_actions))</span><br><span class="line">        self.epsilon_start=args.epsilon_start</span><br><span class="line">        self.epsilon_end=args.epsilon_end</span><br><span class="line">        self.epsilon_decay=args.epsilon_decay</span><br><span class="line">        self.choose_action_dim=np.array([<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line">        self.lr=args.lr</span><br><span class="line">        self.gamma=args.gamma</span><br><span class="line">        self.sample_count=<span class="number">0</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">choose_action</span>(<span class="params">self,state</span>):<span class="comment">#theta 逐渐下降的theta-贪心算法选取当前动作</span></span><br><span class="line">        self.sample_count+=<span class="number">1</span></span><br><span class="line">        self.epsilon=self.epsilon_end+(self.epsilon_start-self.epsilon_end)*math.exp(-<span class="number">1</span>*self.sample_count/self.epsilon_decay)</span><br><span class="line">        <span class="keyword">if</span> np.random.uniform(<span class="number">0</span>,<span class="number">1</span>)&lt;<span class="number">1</span>-self.epsilon+(self.epsilon/<span class="number">4</span>):</span><br><span class="line">            action=np.argmax(self.Q_table[state])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            action=np.random.choice(self.choose_action_dim)</span><br><span class="line">        <span class="keyword">return</span> action</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update</span>(<span class="params">self,state,action,reward,next_state,done,next_action</span>):</span><br><span class="line">        <span class="keyword">if</span> done:</span><br><span class="line">            Q_target=reward</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            Q_target=reward+self.gamma*(self.Q_table[next_state][next_action])</span><br><span class="line">            self.Q_table[state][action]+=self.lr*(Q_target-self.Q_table[state][action])<span class="comment">#Sarsa 更新公式</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_action</span>(<span class="params">self,state</span>):</span><br><span class="line">        <span class="keyword">return</span> np.argmax(self.Q_table[state])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">play</span>(<span class="params"><span class="built_in">type</span></span>):</span><br><span class="line">    env=gym.make(<span class="string">&#x27;CliffWalking-v0&#x27;</span>)</span><br><span class="line">    env=CliffWalkingWapper(env)</span><br><span class="line">    n_states=env.observation_space.n</span><br><span class="line">    n_actions=env.action_space.n</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;状态数：&#123;&#125;，动作数：&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(n_states,n_actions))</span><br><span class="line">    n_reward=[]</span><br><span class="line">    env.seed(<span class="number">0</span>)<span class="comment">#设置随机种子</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">type</span>==<span class="string">&#x27;Q-learning&#x27;</span>:</span><br><span class="line">        agent=Qlearning(n_states,n_actions,args)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(args.train_eps):</span><br><span class="line">            ep_reward=<span class="number">0</span></span><br><span class="line">            state=env.reset()<span class="comment">#起点</span></span><br><span class="line">            step=<span class="number">0</span></span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                step+=<span class="number">1</span></span><br><span class="line">                action=agent.choose_action(state)</span><br><span class="line">                <span class="keyword">if</span> i%<span class="number">50</span>==<span class="number">0</span>:</span><br><span class="line">                    env.render()</span><br><span class="line">                    sleep(<span class="number">0.1</span>)</span><br><span class="line">                next_state,reward,done,_=env.step(action)</span><br><span class="line">                agent.update(state,action,reward,next_state,done)<span class="comment">#Q-learning无需求next_action</span></span><br><span class="line">                state=next_state</span><br><span class="line">                ep_reward+=reward</span><br><span class="line">                <span class="keyword">if</span> done:</span><br><span class="line">                    n_reward.append(ep_reward)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;episode:&#123;&#125;:step:&#123;&#125;,reward:&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(i,step,ep_reward))</span><br><span class="line">                    <span class="keyword">break</span>                  </span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;训练平均奖励：&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(np.mean(n_reward)))</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(agent.Q_table)</span><br><span class="line">    <span class="comment">#测试</span></span><br><span class="line">        step=<span class="number">0</span></span><br><span class="line">        state=env.reset()</span><br><span class="line">        test_reward=<span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            step+=<span class="number">1</span></span><br><span class="line">            sleep(<span class="number">1</span>)</span><br><span class="line">            action=agent.test_action(state)</span><br><span class="line">            env.render()</span><br><span class="line">            next_state,reward,done,_=env.step(action)</span><br><span class="line">            state=next_state</span><br><span class="line">            test_reward+=reward</span><br><span class="line">            <span class="keyword">if</span> done:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;test:step:&#123;&#125;,reward:&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(step,test_reward))</span><br><span class="line">                <span class="keyword">break</span>        </span><br><span class="line">    <span class="keyword">elif</span> <span class="built_in">type</span>==<span class="string">&#x27;Sarsa&#x27;</span>:</span><br><span class="line">        agent=Sarsa(n_states,n_actions,args)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(args.train_eps):</span><br><span class="line">            ep_reward=<span class="number">0</span></span><br><span class="line">            state=env.reset()<span class="comment">#起点</span></span><br><span class="line">            step=<span class="number">0</span></span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                step+=<span class="number">1</span></span><br><span class="line">                action=agent.choose_action(state)</span><br><span class="line">                <span class="keyword">if</span> i%<span class="number">100</span>==<span class="number">0</span>:</span><br><span class="line">                    env.render()</span><br><span class="line">                    sleep(<span class="number">0.1</span>)</span><br><span class="line">                next_state,reward,done,_=env.step(action)</span><br><span class="line">                next_action=agent.choose_action(next_state)<span class="comment">#Sarsa需求next_action</span></span><br><span class="line">                agent.update(state,action,reward,next_state,done,next_action)</span><br><span class="line">                state=next_state</span><br><span class="line">                ep_reward+=reward</span><br><span class="line">                <span class="keyword">if</span> done:</span><br><span class="line">                    n_reward.append(ep_reward)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;episode:&#123;&#125;:step:&#123;&#125;,reward:&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(i,step,ep_reward))</span><br><span class="line">                    <span class="keyword">break</span>                  </span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;训练平均奖励：&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(np.mean(n_reward)))</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(agent.Q_table)</span><br><span class="line">    <span class="comment">#测试</span></span><br><span class="line">        step=<span class="number">0</span></span><br><span class="line">        state=env.reset()</span><br><span class="line">        test_reward=<span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            step+=<span class="number">1</span></span><br><span class="line">            sleep(<span class="number">0.5</span>)</span><br><span class="line">            action=agent.test_action(state)</span><br><span class="line">            env.render()</span><br><span class="line">            next_state,reward,done,_=env.step(action)</span><br><span class="line">            state=next_state</span><br><span class="line">            test_reward+=reward</span><br><span class="line">            <span class="keyword">if</span> done:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;test:step:&#123;&#125;,reward:&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(step,test_reward))</span><br><span class="line">                <span class="keyword">break</span>        </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:                </span><br><span class="line">    play(<span class="string">&#x27;Sarsa&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>Q-learning 效果：最后一次慢的为测试，之前为训练</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4gKM7.gif" alt="4gKM7.gif"></p>
+<p>Sarsa算法效果：最后一次慢的为测试，之前为训练</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4gafX.gif" alt="4gafX.gif"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">默默垂断续流</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/">http://example.com/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YY's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a><a class="post-meta__tags" href="/tags/Q-learning/">Q-learning</a><a class="post-meta__tags" href="/tags/Sarsa/">Sarsa</a></div><div class="post_share"><div class="social-share" data-image="https://s1.328888.xyz/2022/05/07/4gvhO.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><img class="next-cover" src="https://s1.328888.xyz/2022/05/04/hIYbX.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">强化学习</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习"><img class="cover" src="https://s1.328888.xyz/2022/05/04/hIYbX.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-05-05</div><div class="title">强化学习</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81NjAzNS8zMjQ5OA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">默默垂断续流</div><div class="author-info__description">记录有意义的一切</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/yy-199908"><i class="fab fa-github"></i><span>github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/yy-199908" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1102525983@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="tencent://AddContact/?fromId=50&amp;fromSubId=1&amp;subcmd=all&amp;uin=1102525983" target="_blank" title="qq"><i class="fa-brands fa-qq"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">表格型方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%8D%E6%A8%A1%E5%9E%8B%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">免模型方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B"><span class="toc-number">1.1.1.</span> <span class="toc-text">蒙特卡洛</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E5%BA%8F%E5%B7%AE%E5%88%86"><span class="toc-number">1.1.2.</span> <span class="toc-text">时序差分</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sarsa%E7%AE%97%E6%B3%95%EF%BC%9A%E5%90%8C%E7%AD%96%E7%95%A5%E6%97%B6%E5%BA%8F%E5%B7%AE%E5%88%86%E6%8E%A7%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">Sarsa算法：同策略时序差分控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-learning-%E5%BC%82%E7%AD%96%E7%95%A5%E6%97%B6%E5%BA%8F%E5%B7%AE%E5%88%86%E6%8E%A7%E5%88%B6"><span class="toc-number">1.3.</span> <span class="toc-text">Q-learning:异策略时序差分控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-learning%E5%92%8CSarsa%E7%AE%97%E6%B3%95%E5%88%86%E5%88%AB%E5%AE%9E%E7%8E%B0CliffWalking"><span class="toc-number">1.4.</span> <span class="toc-text">Q-learning和Sarsa算法分别实现CliffWalking</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="表格型方法"><img src="https://s1.328888.xyz/2022/05/07/4gvhO.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="表格型方法"/></a><div class="content"><a class="title" href="/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="表格型方法">表格型方法</a><time datetime="2022-05-07T05:02:02.000Z" title="发表于 2022-05-07 13:02:02">2022-05-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习"><img src="https://s1.328888.xyz/2022/05/04/hIYbX.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习"/></a><div class="content"><a class="title" href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习">强化学习</a><time datetime="2022-05-04T08:30:37.000Z" title="发表于 2022-05-04 16:30:37">2022-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/" title="生成对抗网络"><img src="https://s1.328888.xyz/2022/04/27/8vXNM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成对抗网络"/></a><div class="content"><a class="title" href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/" title="生成对抗网络">生成对抗网络</a><time datetime="2022-04-27T13:42:14.000Z" title="发表于 2022-04-27 21:42:14">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/" title="生成模型"><img src="https://s1.328888.xyz/2022/04/27/8v2VZ.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成模型"/></a><div class="content"><a class="title" href="/2022/04/27/%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/" title="生成模型">生成模型</a><time datetime="2022-04-27T13:42:10.000Z" title="发表于 2022-04-27 21:42:10">2022-04-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/" title="RNN的pytorch实现"><img src="https://s1.328888.xyz/2022/04/27/8Zyjd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RNN的pytorch实现"/></a><div class="content"><a class="title" href="/2022/04/27/RNN%E7%9A%84pytorch%E5%AE%9E%E7%8E%B0/" title="RNN的pytorch实现">RNN的pytorch实现</a><time datetime="2022-04-27T11:31:53.000Z" title="发表于 2022-04-27 19:31:53">2022-04-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s1.328888.xyz/2022/05/07/4gvhO.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By 默默垂断续流</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadLivere () {
+  if (typeof LivereTower === 'object') {
+    window.LivereTower.init()
+  }
+  else {
+    (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  }
+}
+
+if ('Livere' === 'Livere' || !false) {
+  if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+  else loadLivere()
+}
+else {
+  function loadOtherComment () {
+    loadLivere()
+  }
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                console.log('已挂载electric_clock')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"superSample":2,"width":250,"height":500,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":false,"scale":0.5},"react":{"opacityDefault":0.7,"opacityOnHover":0.2},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
