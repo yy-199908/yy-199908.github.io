@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>近端策略优化 | YY's Blog</title><meta name="keywords" content="强化学习"><meta name="author" content="默默垂断续流"><meta name="copyright" content="默默垂断续流"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="近端策略优化 同策略与异策略 对于上篇文章所得的同策略优化算法  其中$E_{\tau\sim p_\theta(\tau)}$是对策略$\pi_\theta$采样的轨迹$\tau$求期望。一旦更新了参数，从$\theta$变成$\theta’$，概率$p_\theta(\tau)$就不再正确，之前采样的数据也就不能用了，所以策略梯度是一个会花很多时间来采样数据的算法， 其大多数时间都在采样数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="近端策略优化">
+<meta property="og:url" content="http://example.com/2022/05/07/%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="YY&#39;s Blog">
+<meta property="og:description" content="近端策略优化 同策略与异策略 对于上篇文章所得的同策略优化算法  其中$E_{\tau\sim p_\theta(\tau)}$是对策略$\pi_\theta$采样的轨迹$\tau$求期望。一旦更新了参数，从$\theta$变成$\theta’$，概率$p_\theta(\tau)$就不再正确，之前采样的数据也就不能用了，所以策略梯度是一个会花很多时间来采样数据的算法， 其大多数时间都在采样数据。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.328888.xyz/2022/05/07/4r4St.png">
+<meta property="article:published_time" content="2022-05-07T08:56:27.000Z">
+<meta property="article:modified_time" content="2022-05-07T08:59:22.197Z">
+<meta property="article:author" content="默默垂断续流">
+<meta property="article:tag" content="强化学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.328888.xyz/2022/05/07/4r4St.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/05/07/%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '近端策略优化',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-07 16:59:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s1.328888.xyz/2022/05/07/4r4St.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YY's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">近端策略优化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-07T08:56:27.000Z" title="发表于 2022-05-07 16:56:27">2022-05-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-05-07T08:59:22.197Z" title="更新于 2022-05-07 16:59:22">2022-05-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/">剑谱</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">天下第一剑:机器学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/">Pytorch</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%91%E8%B0%B1/%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%89%91-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Pytorch/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="近端策略优化"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>近端策略优化</h1>
+<h2 id="同策略与异策略">同策略与异策略</h2>
+<p>对于上篇文章所得的同策略优化算法</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/492xB.png" alt="492xB.png"></p>
+<p>其中$E_{\tau\sim p_\theta(\tau)}$是对策略$\pi_\theta$采样的轨迹$\tau$求期望。一旦更新了参数，从$\theta$变成$\theta’$，概率$p_\theta(\tau)$就不再正确，之前采样的数据也就不能用了，所以策略梯度是一个会花很多时间来采样数据的算法， 其大多数时间都在采样数据。智能体与环境交互以后，接下来就要更新参数。我们只能更新参数一次，然后就要重新采样数据，才能再次更新参数。这显然是非常花时间的。</p>
+<p>所以我们引入了<strong>异策略算法</strong>，用另外一个策略$\pi_{\theta’}$，另外的参数$\theta’$与环境交互，($\theta’$<strong>是被固定的</strong>)，用$\theta’$采样所得的数据去训练$\theta$，我们就可以多次使用$\theta’$采样得到的数据，可以多次执行梯度上升。</p>
+<h3 id="重要性采样">重要性采样</h3>
+<p>假设我们采用大数定理，x服从分布p，如果我们不能从分布 p 采样数据，只能从另外一个分布 q 采样数据 x，q 可以 是任何分布。如果我们从 q 采样$x^i$，也可以获得函数f(x)的期望：<br>
+$$<br>
+\int f(x)p(x)dx=\int f(x)\frac{p(x)}{q(x)}q(x)dx=E_{x\sim q}[f(x)\frac{p(x)}{q(x)}]<br>
+$$</p>
+<p>$$<br>
+E_{x\sim p}[f(x)]=E_{x\sim q}[f(x)\frac{p(x)}{q(x)}]<br>
+$$</p>
+<p>理论上我们可以用任何q分布来计算上式，但是在实际情况下，p和q的差距不能太大。这是因为他们虽然期望相同，但是方差不同，如果p和q的差距很大，其方差也差距很大，如果我们采样次数不够，就有可能得到差别非常大的结果。</p>
+<p>现在要做的就是把重要性采样用在异策略的情况中，把同策略训练的算法改成异策略训练的算法。怎 么改呢？如式 所示，之前我们用策略$\pi_{\theta}$ 与环境交互，采样出轨迹 $\tau$，计算 R(τ )∇ log pθ(τ )。现在我们 不用 θ 与环境交互，假设有另外一个策略$\pi_{\theta’}$，它就是另外一个策略，它的工作是做示范:</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4XUx1.png" alt="4XUx1.png"></p>
+<p>现在与环境交互的是 θ ′ 而不是 θ，所以采样的数据与 θ 本身是没有关系的。因此我们就可以 让 θ ′ 与环境交互采样大量的数据，θ 可以多次更新参数，一直到 θ 训练到一定的程度。更新多次以后，θ ′ 再重新做采样，这就是同策略换成异策略的妙处.</p>
+<p>实际在做策略梯度的时候，我们并不是给整个轨迹 τ 一样的分数，而是将每一个状态-动作对分开计 算。实际更新梯度的过程可写为:</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4Xhc0.png" alt="4Xhc0.png"></p>
+<p>我们用agent θ 采样出 st 与 at，采样出状态-动作的对，我们会计算这个状态-动作对的优势（advantage） $A^θ (s_t , a_t)$，就是它有多好。$A^θ (s_t , a_t)$ 即用累积奖励减去基线，这一项就是估测出来的。它要估测的是，在状态 st 采取动作 at 是好的还是不好的。接下来在后面乘 $\nabla \log p_θ (a^n_t \vert s^n_t )$，也就是如果 $A^θ (s_t , a_t)$ 是正的， 就要增大概率；如果是负的，就要减小概率。</p>
+<p>再一步变换：</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4XCQ3.png" alt="4XCQ3.png"></p>
+<p>又因为环境返回状态其实和agent网络参数$\theta$的相关性是比较小的，所以我们可以近似看做$p_\theta(s_t)=p_\theta’(s_t)$,上式化简为：</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4XYZ7.png" alt="4XYZ7.png"></p>
+<p>注意，对 θ 求梯度时，$p_{\theta’}(a_t\vert s_t)$ 和 $A^{\theta’}(s_t,a_t)$都是常数。</p>
+<p>记我们需要优化的f(x)为：</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4Xb7q.png" alt="4Xb7q.png"></p>
+<h2 id="近端策略优化-PPO">近端策略优化:PPO</h2>
+<p>我们可以通过重要性采样把同策略换成异策略，但重要性采样有一个问题：如果 p 与 q相差太多，即这两个分布相差太多，重要性采样的结果就会不好。怎么避免它们相差太多呢？这就是 PPO 要做的事情</p>
+<center>PPO是同策略算法</center>
+<p>在异策略的方法里优化目标函数$J^{\theta’}(\theta)$。但是这个目标函数又牵涉到重要性采样。在做重要性采样的时候，p 不能与 q 相差太多。做示范的模型不能与真正的 模型相差太多，相差太多，重要性采样的结果就会不好。我们在训练的时候，应多加一个约束（constrain）。 这个约束是 θ 与 θ ′ 输出的动作的 KL 散度（KL divergence），这一项用于衡量 θ 与 θ ′ 的相似程度。我 们希望在训练的过程中，学习出的 θ 与 θ ′ 越相似越好。因为如果 θ 与 θ ′ 不相似，最后的结果就会不好。 所以在 PPO 里面有两项：一项是优化本来要优化的$J^{\theta’}(\theta)$，另一项是一个约束。这个约束就好像正则化 （regularization）的项（term）一样，它所做的就是希望最后学习出的 θ 与 θ ′ 相差不大.<br>
+$$<br>
+J^{\theta’}_{PPO}(\theta)=J^{\theta’}(\theta)-\beta KL(\theta,\theta’)<br>
+$$<br>
+<img src="https://s1.328888.xyz/2022/05/07/4XP7F.png" alt="4XP7F.png"></p>
+<h3 id="近端策略优化惩罚">近端策略优化惩罚</h3>
+<p>它先初始化一个策略的参数$\theta^0$。在每一个迭代里面，我们用前一个训练的迭代得到的agent的参数$\theta^k$与环境交互从而更新$\theta$</p>
+<h4 id="自适应KL惩罚">自适应KL惩罚</h4>
+<p>在这个方法里面，我们先设一个 可以接受的 KL 散度的最大值。假设优化$J^{\theta’}_{PPO}(\theta)$以后，KL 散度的值太大，大于我们设置的KL散度最大值，这就代表后面惩罚的项 β没有发挥作用，我们就把β增大。同理，设置一个KL散度最小值，如果KL散度比最小值海啸，表面最后一项效果太强了，我们减小β。</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4fkud.png" alt="4fkud.png"><br>
+$$<br>
+\begin{cases}<br>
+增大\beta\ ,if KL(\theta,\theta^k)&gt;KL_{max}\\<br>
+减小\beta\ ,if KL(\theta,\theta^k)&lt;KL_{min}<br>
+\end{cases}<br>
+$$</p>
+<h3 id="近端策略优化裁剪">近端策略优化裁剪</h3>
+<p>此方法目标函数中没有KL散度，其要最大化的目标函数为：</p>
+<p>$$<br>
+J^{\theta^k}<em>{PPO2}\approx \sum</em>{(s_t,a_t)}\min\left(\frac{p_\theta(a_t\vert s_t)}{p_{\theta^k}(a_t\vert s_t)}A^{\theta^k}(s_t,a_t),clip(\frac{p_\theta(a_t\vert s_t)}{p_{\theta^k}(a_t\vert s_t)},1-\epsilon,1+\epsilon)A^{\theta^k}(s_t,a_t)\right)<br>
+$$</p>
+<p>其中第二项前面有一个裁剪（clip）函数，裁剪函数是指，在括号里面有 3 项，如果第一项小于第二项， 那就输出 1 − ε；第一项如果大于第三项，那就输出 1 + ε</p>
+<p><img src="https://s1.328888.xyz/2022/05/07/4iSiJ.png" alt="4iSiJ.png"></p>
+<p>这个式子又是怎样让p和q接近的呢？</p>
+<p>如果 A &gt; 0，也就是某一个状态-动作对是好的，我们希望增大这个状态-动作对的概率。也就是，我们想让 $p^θ(a_t |s_t) $越大越好，但它与$p^{θ^k}(a_t |s_t) $的比值不可以超过 1 +ε。如果 超过 1 + ε ，就没有好处了。</p>
+<p>如果 A &lt; 0，也就是某一个状态-动作对是不好的，那么我们希望把 $p^θ(a_t |s_t) $减小。如果 $p^θ(a_t |s_t) $)比 $p^{θ^k}(a_t |s_t) $还大，那我们就尽量把它减小，减到$ \frac{p^θ(a_t|s_t)}{ p^{θ^k} (a_t|s_t)} $是 1 − ε 的时候停止</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">默默垂断续流</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/05/07/%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96/">http://example.com/2022/05/07/%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YY's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a></div><div class="post_share"><div class="social-share" data-image="https://s1.328888.xyz/2022/05/07/4r4St.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/05/07/%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6/"><img class="next-cover" src="https://s1.328888.xyz/2022/05/07/491rW.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">策略梯度</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/07/%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6/" title="策略梯度"><img class="cover" src="https://s1.328888.xyz/2022/05/07/491rW.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-05-07</div><div class="title">策略梯度</div></div></a></div><div><a href="/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="表格型方法"><img class="cover" src="https://s1.328888.xyz/2022/05/07/4gvhO.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-05-07</div><div class="title">表格型方法</div></div></a></div><div><a href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习"><img class="cover" src="https://s1.328888.xyz/2022/05/04/hIYbX.png" alt="cover"><div class="content is-center"><div class="date"><i class="fas fa-history fa-fw"></i> 2022-05-05</div><div class="title">强化学习</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81NjAzNS8zMjQ5OA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">默默垂断续流</div><div class="author-info__description">记录有意义的一切</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/yy-199908"><i class="fab fa-github"></i><span>github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/yy-199908" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1102525983@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="tencent://AddContact/?fromId=50&amp;fromSubId=1&amp;subcmd=all&amp;uin=1102525983" target="_blank" title="qq"><i class="fa-brands fa-qq"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">近端策略优化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8C%E7%AD%96%E7%95%A5%E4%B8%8E%E5%BC%82%E7%AD%96%E7%95%A5"><span class="toc-number">1.1.</span> <span class="toc-text">同策略与异策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7"><span class="toc-number">1.1.1.</span> <span class="toc-text">重要性采样</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96-PPO"><span class="toc-number">1.2.</span> <span class="toc-text">近端策略优化:PPO</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%E6%83%A9%E7%BD%9A"><span class="toc-number">1.2.1.</span> <span class="toc-text">近端策略优化惩罚</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E9%80%82%E5%BA%94KL%E6%83%A9%E7%BD%9A"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">自适应KL惩罚</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%E8%A3%81%E5%89%AA"><span class="toc-number">1.2.2.</span> <span class="toc-text">近端策略优化裁剪</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/07/%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96/" title="近端策略优化"><img src="https://s1.328888.xyz/2022/05/07/4r4St.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="近端策略优化"/></a><div class="content"><a class="title" href="/2022/05/07/%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96/" title="近端策略优化">近端策略优化</a><time datetime="2022-05-07T08:56:27.000Z" title="发表于 2022-05-07 16:56:27">2022-05-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/07/%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6/" title="策略梯度"><img src="https://s1.328888.xyz/2022/05/07/491rW.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="策略梯度"/></a><div class="content"><a class="title" href="/2022/05/07/%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6/" title="策略梯度">策略梯度</a><time datetime="2022-05-07T06:38:34.000Z" title="发表于 2022-05-07 14:38:34">2022-05-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="表格型方法"><img src="https://s1.328888.xyz/2022/05/07/4gvhO.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="表格型方法"/></a><div class="content"><a class="title" href="/2022/05/07/%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="表格型方法">表格型方法</a><time datetime="2022-05-07T05:02:02.000Z" title="发表于 2022-05-07 13:02:02">2022-05-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习"><img src="https://s1.328888.xyz/2022/05/04/hIYbX.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习"/></a><div class="content"><a class="title" href="/2022/05/04/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="强化学习">强化学习</a><time datetime="2022-05-04T08:30:37.000Z" title="发表于 2022-05-04 16:30:37">2022-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/" title="生成对抗网络"><img src="https://s1.328888.xyz/2022/04/27/8vXNM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成对抗网络"/></a><div class="content"><a class="title" href="/2022/04/27/%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E7%BD%91%E7%BB%9C/" title="生成对抗网络">生成对抗网络</a><time datetime="2022-04-27T13:42:14.000Z" title="发表于 2022-04-27 21:42:14">2022-04-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s1.328888.xyz/2022/05/07/4r4St.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By 默默垂断续流</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadLivere () {
+  if (typeof LivereTower === 'object') {
+    window.LivereTower.init()
+  }
+  else {
+    (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  }
+}
+
+if ('Livere' === 'Livere' || !false) {
+  if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+  else loadLivere()
+}
+else {
+  function loadOtherComment () {
+    loadLivere()
+  }
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                console.log('已挂载electric_clock')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"superSample":2,"width":250,"height":500,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":false,"scale":0.5},"react":{"opacityDefault":0.7,"opacityOnHover":0.2},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
